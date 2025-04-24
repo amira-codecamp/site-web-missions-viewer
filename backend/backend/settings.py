@@ -1,24 +1,19 @@
-
+import os
+from urllib.parse import urlparse
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-import environ
+FRONTEND_URL = os.environ.get("FRONTEND_URL")
+SECRET_KEY = os.environ.get("SECRET_KEY")
+DEBUG = os.environ.get("DEBUG")
+MYSQL_URL = os.environ.get("MYSQL_URL")
 
-env = environ.Env()
-environ.Env.read_env()
-VUE_FRONTEND_URL = env("VUE_FRONTEND_URL")
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ji26r@zbfjz3@3@k5%xbid7loo*yrw+d34&&e7=zw^fmtiq!g*'
-
-
-DEBUG = True
+DB_NAME = 'db' # your database name
+DATABASE_URL = f"{MYSQL_URL}/{DB_NAME}"
+url = urlparse(DATABASE_URL)
 
 ALLOWED_HOSTS = []
-
-
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -34,7 +29,7 @@ INSTALLED_APPS = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    VUE_FRONTEND_URL,
+    FRONTEND_URL,
 ]
 
 MIDDLEWARE = [
@@ -67,17 +62,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-
 DATABASES = {
-    #'default': {
-        #'ENGINE': 'django.db.backends.mysql' #'django.db.backends.sqlite3',
-        #'NAME': BASE_DIR / 'db.mysql', #'db.sqlite3',
-        #'OPTIONS': {
-        #    'read_default_file': BASE_DIR / 'db.cnf',
-        #},
-    #}
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': url.path[1:],
+        'USER': url.username,
+        'PASSWORD': url.password,
+        'HOST': url.hostname,
+        'PORT': url.port,
+    }
 }
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -92,22 +86,16 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
-    { # Custom validator
+    {
         'NAME': 'backend.validators.CustomValidator',
     },
 ]
 
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
-
 STATIC_URL = 'static/'
-
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
