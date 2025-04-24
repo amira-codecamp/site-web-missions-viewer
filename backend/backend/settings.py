@@ -1,5 +1,4 @@
 import os
-from urllib.parse import urlparse
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -7,13 +6,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 FRONTEND_URL = os.environ.get("FRONTEND_URL")
 SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = os.environ.get("DEBUG")
-MYSQL_URL = os.environ.get("MYSQL_URL")
+DB_NAME = os.environ.get("DB_NAME")
+DB_USER = os.environ.get("DB_USER")
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
+DB_HOST = os.environ.get("DB_HOST")
+DB_PORT = os.environ.get("DB_PORT")
+ALLOWED_HOST = os.environ.get("ALLOWED_HOST")
 
-DB_NAME = 'db' # your database name
-DATABASE_URL = f"{MYSQL_URL}/{DB_NAME}"
-url = urlparse(DATABASE_URL)
-
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [ALLOWED_HOST]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -65,11 +65,11 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': url.path[1:],
-        'USER': url.username,
-        'PASSWORD': url.password,
-        'HOST': url.hostname,
-        'PORT': url.port,
+        'NAME': DB_NAME,
+        'USER': DB_USER,
+        'PASSWORD': DB_PASSWORD,
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
     }
 }
 
