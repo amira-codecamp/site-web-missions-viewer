@@ -3,7 +3,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-FRONTEND_URL = os.environ.get("FRONTEND_URL")
+VUE_URL = os.environ.get("VUE_URL")
 SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = os.environ.get("DEBUG")
 DB_NAME = os.environ.get("DB_NAME")
@@ -29,7 +29,7 @@ INSTALLED_APPS = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    FRONTEND_URL,
+    VUE_URL,
 ]
 
 MIDDLEWARE = [
