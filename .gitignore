@@ -85,3 +85,5 @@ run.txt
 requirements.txt
 
 frontend/
+users/
+django_backend/django_backend/
