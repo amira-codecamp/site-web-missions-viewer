@@ -18,3 +18,11 @@ class TripsView(APIView):
         return Response({
             "trips": TripsSerializer(trips, many=True).data,
         })
+    
+
+class HomeView(APIView):
+
+    def get(self, request):
+        return Response({
+            "data": "WELCOME HOME PAGE !",
+        })
