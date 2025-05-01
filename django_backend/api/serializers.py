@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import TransportationModes, Trips, Missions, Employees, StaffStatus
+from api.models import TransportationModes, Trips, Missions, Employees, StaffStatus
 
 
 class TransportationModesSerializer(serializers.ModelSerializer):

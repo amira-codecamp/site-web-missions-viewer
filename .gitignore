@@ -85,5 +85,5 @@ run.txt
 requirements.txt
 
 frontend/
-users/
-django_backend/django_backend/
+django_backend/users/migrations/
+django_backend/api/migrations/

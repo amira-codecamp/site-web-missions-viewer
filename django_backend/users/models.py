@@ -1,10 +1,7 @@
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permission
 from django.db import models
 from api.models import Employees
 from django.contrib.auth.password_validation import validate_password
-from oauth2_provider.models import AbstractAccessToken
-from django.utils import timezone
-from datetime import timedelta
 
 
 class UsersAccountsManager(BaseUserManager):
@@ -34,6 +31,7 @@ class UsersAccounts(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     employee = models.ForeignKey(Employees, on_delete=models.PROTECT, related_name='usersaccounts', null=True, blank=True)
+    permissions = models.ManyToManyField(Permission, blank=True)
 
     USERNAME_FIELD = 'login'
     REQUIRED_FIELDS = []
@@ -66,20 +64,3 @@ class UsersAccounts(AbstractBaseUser):
         managed = True
         verbose_name = "Account"
         verbose_name_plural = "Accounts"
-
-
-# class UsersAccessTokens(AbstractAccessToken):
-#     user = models.ForeignKey(UsersAccounts, on_delete=models.PROTECT, related_name='usersaccesstokens')
-#     expire_date = models.DateTimeField(null=True, blank=True)
-#     create_date = models.DateTimeField(auto_now_add=True)
-#     revoked = models.BooleanField(default=False)
-#     token_value = models.CharField(max_length=255, primary_key=True)
-
-#     def __str__(self):
-#         return f"Token: {self.token_value}, Expiry: {self.expire_date}"
-
-#     class Meta:
-#         db_table = 'AccessTokens'
-#         managed = True
-#         verbose_name = 'Token'
-#         verbose_name_plural = 'Tokens'
