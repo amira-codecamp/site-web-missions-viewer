@@ -1,19 +1,20 @@
+
 import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-APP_SERVER = os.environ.get("APP_SERVER")
 SECRET_KEY = os.environ.get("PROD_KEY")
+
 DB_NAME = os.environ.get("DB_NAME")
 DB_USER = os.environ.get("DB_USER")
 DB_PASSWORD = os.environ.get("DB_PASSWORD")
 DB_HOST = os.environ.get("DB_HOST")
 DB_PORT = os.environ.get("DB_PORT")
 
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -26,13 +27,10 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'djoser',
     'corsheaders',
-    'api',
-    'users',
+    'carbonapi',
 ]
 
-# CORS_ALLOWED_ORIGINS = [
-#     VUE_URL,
-# ]
+CORS_ALLOWED_ORIGINS = [ 'http://localhost:8080' ] # Frontend URL
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -58,7 +56,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'django_backend.urls'
+ROOT_URLCONF = 'urls'
 
 TEMPLATES = [
     {
@@ -75,8 +73,6 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'django_backend.wsgi.application'
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -88,25 +84,7 @@ DATABASES = {
     }
 }
 
-AUTH_USER_MODEL = 'users.UsersAccounts'
-
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-    {
-        'NAME': 'users.validators.CustomValidator',
-    },
-]
+AUTH_USER_MODEL = 'carbonapi.User'
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
@@ -114,5 +92,3 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
-
-# DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
