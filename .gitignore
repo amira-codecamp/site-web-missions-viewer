@@ -84,6 +84,8 @@ run.txt
 
 requirements.txt
 
-frontend/
-django_backend/users/migrations/
-django_backend/api/migrations/
+vueproject/
+db_docs/
+djangoproject/carbonapi/migrations/
+test.py
+users/
