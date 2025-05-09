@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from carbonapi.models.TransportModel import Transport
+from tripsservice.models.TransportModel import Transport
 
 
 class TransportSerializer(serializers.ModelSerializer):

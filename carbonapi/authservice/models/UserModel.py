@@ -1,7 +1,7 @@
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
-from carbonapi.models.EmployeeModel import Employee
+from tripsservice.models.EmployeeModel import Employee
 
 
 class Permission(models.Model):

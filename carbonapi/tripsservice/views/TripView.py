@@ -3,9 +3,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import NotFound
-from carbonapi.models.TripModel import Trip
-from carbonapi.views.TripPermission import IsViewTripPermission
-from carbonapi.serializers.TripSerializer import TripSerializer
+from tripsservice.models.TripModel import Trip
+from tripsservice.views.TripPermission import IsViewTripPermission
+from tripsservice.serializers.TripSerializer import TripSerializer
 
 
 class TripView(APIView):

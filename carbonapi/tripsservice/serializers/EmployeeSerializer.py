@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from carbonapi.models.EmployeeModel import Employee, EmployeeStatus
+from tripsservice.models.EmployeeModel import Employee, EmployeeStatus
 
 
 class StatusSerializer(serializers.ModelSerializer):
