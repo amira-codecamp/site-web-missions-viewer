@@ -13,7 +13,10 @@ class TripView(APIView):
     permission_classes = [IsAuthenticated, IsViewTripPermission]
 
     def get(self, request):
-        trips = Trip.objects.filter(employee_id=request.user.employee_id)
+        if request.user.group.group_name == 'admin':
+            trips = Trip.objects.all()
+        else:
+            trips = Trip.objects.filter(employee_id=request.user.employee_id)
         if not trips:
             raise NotFound(detail="Trips not found.")
         return Response({
