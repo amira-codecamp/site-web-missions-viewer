@@ -1,7 +1,7 @@
 
 from django.db import models
-from carbonapi.models.EmployeeModel import Employee
-from carbonapi.models.TransportModel import Transport
+from tripsservice.models.EmployeeModel import Employee
+from tripsservice.models.TransportModel import Transport
 
 
 class Mission(models.Model):

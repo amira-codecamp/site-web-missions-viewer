@@ -27,7 +27,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'djoser',
     'corsheaders',
-    'carbonapi',
+    'tripsservice',
+    'authservice'
 ]
 
 CORS_ALLOWED_ORIGINS = [ 'http://localhost:8080' ] # Frontend URL
@@ -84,7 +85,7 @@ DATABASES = {
     }
 }
 
-AUTH_USER_MODEL = 'carbonapi.User'
+AUTH_USER_MODEL = 'authservice.User'
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'

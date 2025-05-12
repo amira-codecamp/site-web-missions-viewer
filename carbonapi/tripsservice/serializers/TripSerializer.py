@@ -1,8 +1,8 @@
 
 from rest_framework import serializers
-from carbonapi.serializers.EmployeeSerializer import EmployeeSerializer
-from carbonapi.serializers.TransportSerializer import TransportSerializer
-from carbonapi.models.TripModel import Trip, Mission
+from tripsservice.serializers.EmployeeSerializer import EmployeeSerializer
+from tripsservice.serializers.TransportSerializer import TransportSerializer
+from tripsservice.models.TripModel import Trip, Mission
 
 
 class MissionsSerializer(serializers.ModelSerializer):
