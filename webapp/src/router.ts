@@ -1,7 +1,8 @@
 
 import { createRouter, createWebHistory } from 'vue-router';
-import LogInPage from '@/components/LogInPage.vue';
-import MemberPage from '@/components/MemberPage.vue';
+import LogIn from '@/components/LogIn.vue';
+import Dashboard from '@/components/Dashboard.vue';
+import TripsPage from '@/pages/TripsPage.vue';
 import store from '@/store/index';
 
 
@@ -13,14 +14,27 @@ const routes = [
   {
     path: '/login',
     name: 'login',
-    component: LogInPage,
+    component: LogIn,
   },
+  // {
+  //   path: '/member',
+  //   name: 'member',
+  //   component: MemberPage,
+  //   meta: { requiresAuth: true },
+  // },
   {
-    path: '/member',
-    name: 'member',
-    component: MemberPage,
+    path: '/dashboard',
+    name: 'dashboard',
+    component: Dashboard,
     meta: { requiresAuth: true },
-  },
+    children: [
+      {
+        path: '/trips',
+        name: 'trips',
+        component: TripsPage
+      },
+    ]
+  }
 ];
 
 
@@ -30,14 +44,14 @@ const router = createRouter({
 });
 
 
-// router.beforeEach((to, from, next) => {
-//   const isAuthenticated = store.state.isAuthenticated;
-//   if (to.meta.requiresAuth && !isAuthenticated) {
-//     next('/login');
-//   } else {
-//     next();
-//   }
-// });
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = store.getters.isAuthenticated;
+  if (to.meta.requiresAuth && !isAuthenticated)  {
+    next('/login');
+  } else {
+    next();
+  }
+});
 
 
 export default router;

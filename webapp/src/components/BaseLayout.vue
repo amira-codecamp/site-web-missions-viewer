@@ -1,6 +1,6 @@
 
 <template>
-  <div class="app">
+  <div class="page">
 
     <div class="page-header">
       <Header />
@@ -34,4 +34,26 @@
 
 <style lang="scss">
   @import "~bulma/bulma";
+
+  .page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .page-header {
+    flex-shrink: 0;
+  }
+
+  .page-body {
+    flex-grow: 1;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .page-footer {
+    flex-shrink: 0;
+  }
 </style>

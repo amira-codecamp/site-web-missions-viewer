@@ -3,29 +3,27 @@
     <div class="columns">
         <div class="column is-4 is-offset-4">
 
-            <h1 class="title">Log In</h1>
-
             <form @submit.prevent="submitForm">
 
-                <div class="field">
+                <div class="field mb-4">
                     <label>Login</label>
                     <div class="control">
                         <input type="text" class="input" v-model="login" required maxlength="50" placeholder="Enter your login">
                     </div>
                 </div>
 
-                <div class="field">
+                <div class="field mb-4">
                     <label>Password</label>
                     <div class="control">
                         <input type="password" class="input" v-model="password" required placeholder="Enter your password">
                     </div>
                 </div>
 
-                <div class="notification is-danger" v-if="errors.length">
+                <div class="notification is-danger mb-4" v-if="errors.length">
                     <p v-for="error in errors" :key="error">{{ error }}</p>
                 </div>
 
-                <div class="field">
+                <div class="field mb-4">
                     <div class="control">
                         <button class="button is-dark">Log In</button>
                     </div>
@@ -43,7 +41,7 @@ import authservice from '@/services/authservice';
 import tripsservice from '@/services/tripsservice';
 
 export default {
-    name: 'LogInPage',
+    name: 'LogIn',
     data() {
         return {
             login: '',
@@ -65,10 +63,11 @@ export default {
 
             try {
                 const credentials = { login: this.login, password: this.password };
+                this.$store.dispatch('setUser', this.login);
                 const { access, refresh } = await authservice.login(credentials);
                 const trips = await tripsservice.fetchTrips(access);
                 this.$store.dispatch('setTrips', trips);
-                this.$router.push('/member');
+                this.$router.push('/dashboard');
 
             } catch (error) {
                 if (error.response) {

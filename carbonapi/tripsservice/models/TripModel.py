@@ -55,5 +55,6 @@ class Trip(models.Model):
             ("view_trip", "Can view trip"),
             ("add_trip", "Can add trip"),
             ("change_trip", "Can change trip"),
-            ("delete_trip", "Can delete trip")
+            ("delete_trip", "Can delete trip"),
+            ("view_all_trip", "Can view all trips"),
         ]

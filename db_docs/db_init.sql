@@ -114,12 +114,15 @@ DELIMITER ;
 INSERT INTO Status (status_name) VALUES 
 ('researcher'),
 ('doctorant'),
-('intern');
+('intern'),
+('technician');
 
 INSERT INTO Employees (first_name, last_name, email, `status`) VALUES 
 ('Mathieu', 'LACROIX', 'lacroix@lipn.fr', 'researcher'),
 ('Étienne', 'ANDRÉ', 'Etienne.Andre@lipn.univ-paris13.fr', 'researcher'),
-('Amira', 'HAMMADI', 'hammadi@lipn.univ-paris13.fr', 'intern');
+('Amira', 'HAMMADI', 'hammadi@lipn.univ-paris13.fr', 'intern'),
+('YYY', 'YYYYY', 'yyyyy@lipn.fr', 'technician'),
+('XXX', 'XXXXX', 'xxxxx@lipn.fr', 'technician');
 
 INSERT INTO `Groups` (group_name) VALUES 
 ('admin'),
@@ -131,6 +134,7 @@ INSERT INTO `Permissions` (permission_name, permission_desc) VALUES
 ('add_trip', 'Can add trip'),
 ('change_trip', 'Can modify trip'),
 ('delete_trip', 'Can delete trip'),
+('view_all_trip', 'Can view all trips'),
 ('view_mission', 'Can view mission'),
 ('add_mission', 'Can add mission'),
 ('change_mission', 'Can modify mission'),
@@ -160,12 +164,17 @@ INSERT INTO `Permissions` (permission_name, permission_desc) VALUES
 ('change_permission', 'Can modify permission'),
 ('delete_permission', 'Can delete permission');
 
-INSERT INTO Groups_permissions (permission, `group`) VALUES ('view_trip', 'standard');
+INSERT INTO Groups_permissions (permission, `group`) VALUES 
+('view_trip', 'standard'),
+('view_all_trip', 'admin'),
+('view_all_trip', 'missionmanager');
 
 INSERT INTO Users (login, password, date_joined, last_login, is_active, `group`, employee) VALUES 
 ('lacroix', 'pbkdf2_sha256$1000000$ev7fOcB3Rx1M8Av90qSSGm$BoDD/YWq4bpGPv9O+eOoAL0vHFdreGJpeI/WGBjoYpM=', '2010/03/10', '2025/05/08', TRUE, 'standard', 1),
 ('andre', 'pbkdf2_sha256$1000000$MYtyO8gaelf05aMTQnH3fV$5e+u4HywJ+bR5tk5sn1+/6if9MX/a1gm0FFnp6GaDZs=', '2010/03/10', '2025/05/08', TRUE, 'standard', 2),
-('hammadi', 'pbkdf2_sha256$1000000$3ouINtYqNiJL8dcXFqm6gU$LVMxjbrPwrmgy2e91EFOc8ZQWGa/0B7aguQPgNcegyE=', '2024/04/14', '2025/05/08', TRUE, 'standard', 3);
+('hammadi', 'pbkdf2_sha256$1000000$3ouINtYqNiJL8dcXFqm6gU$LVMxjbrPwrmgy2e91EFOc8ZQWGa/0B7aguQPgNcegyE=', '2024/04/14', '2025/05/08', TRUE, 'standard', 3),
+('xxxxx', 'pbkdf2_sha256$1000000$c1ilG4NoJ6VS9hE3GB9v1S$D9SGGM56KKI0OfKAOoc2IbxRk3oyI/OvGnxFdxGjcGQ=', '2020/04/14', '2025/05/08', TRUE, 'admin', 5),
+('yyyyy', 'pbkdf2_sha256$1000000$kzUVVFpiiRKzY42qSotTrO$jraq9nPC+BwcVV22D+No6qsr4IqKnT2zYeTP69Jk17E=', '2017/04/14', '2025/05/08', TRUE, 'missionmanager', 4);
 
 INSERT INTO Transports (transport_name) VALUES 
 ('car'),
@@ -182,24 +191,25 @@ INSERT INTO Missions (mission_num, start_date, end_date, mission_desc) VALUES
 INSERT INTO Trips (employee, departure_city, departure_country, destination_city, destination_country, is_round_trip, carpooling, transport, mission, carbon_footprint) VALUES
 (1, 'Paris', 'France', 'Lyon', 'France', TRUE, 0, 'train', 'M-001', 2.0),
 (2, 'Paris', 'France', 'Marseille', 'France', FALSE, 0, 'train', 'M-002', 1.5),
-(3, 'Paris', 'France', 'Bordeaux', 'France', TRUE, 0, 'train', 'M-001', 1.8),
 (1, 'Lyon', 'France', 'Toulouse', 'France', FALSE, 0, 'train', 'M-003', 2.2),
 (1, 'Marseille', 'France', 'Paris', 'France', TRUE, 0, 'train', 'M-002', 1.9);
 
 -- 9 Trips between Different Countries using Plane
 INSERT INTO Trips (employee, departure_city, departure_country, destination_city, destination_country, is_round_trip, carpooling, transport, mission, carbon_footprint) VALUES
-(1, 'Bordeaux', 'France', 'Berlin', 'Germany', FALSE, 0, 'plane', 'M-001', 2.1),
+(1, 'Bordeaux', 'France', 'Berlin', 'Germany', TRUE, 0, 'plane', 'M-001', 2.1),
+(1, 'Bordeaux', 'France', 'Tokyo', 'Japan', FALSE, 0, 'plane', 'M-001', 2.1),
+(1, 'Paris', 'France', 'Berlin', 'Germany', TRUE, 0, 'plane', 'M-001', 2.1),
+(1, 'Paris', 'France', 'Frankfort', 'Germany', FALSE, 0, 'plane', 'M-002', 2.1),
+(1, 'Bordeaux', 'France', 'Berlin', 'Germany', FALSE, 0, 'plane', 'M-003', 2.1),
 (2, 'Lyon', 'France', 'New York', 'USA', TRUE, 0, 'plane', 'M-002', 1.7),
-(3, 'Toulouse', 'France', 'Tokyo', 'Japan', TRUE, 0, 'plane', 'M-003', 2.0),
-(3, 'Nantes', 'France', 'London', 'UK', FALSE, 0, 'plane', 'M-003', 1.8),
 (1, 'Paris', 'France', 'Berlin', 'Germany', TRUE, 0, 'plane', 'M-001', 1.6),
 (2, 'Marseille', 'France', 'Berlin', 'Germany', FALSE, 0, 'plane', 'M-002', 2.3),
 (2, 'Lyon', 'France', 'Madrid', 'Spain', TRUE, 0, 'plane', 'M-002', 1.7),
-(3, 'Toulouse', 'France', 'Rome', 'Italy',  FALSE, 0, 'plane', 'M-003', 1.5),
-(2, 'Nantes', 'France', 'Berlin', 'Germany', TRUE, 0, 'plane', 'M-002', 1.8);
+(2, 'Nantes', 'France', 'Berlin', 'Germany', TRUE, 0, 'plane', 'M-002', 1.8),
+(1, 'Paris', 'France', 'Lyon', 'France', TRUE, 1, 'car', 'M-001', 2.0),
+(1, 'Paris', 'France', 'Nancy', 'France', FALSE, 0, 'car', 'M-001', 1.9);
 
 -- 3 Trips between Two Regions of Paris using Car
 INSERT INTO Trips (employee, departure_city, departure_country, destination_city, destination_country, is_round_trip, carpooling, transport, mission, carbon_footprint) VALUES
 (1, 'Paris', 'France', 'Versailles', 'France', TRUE, 1, 'car', 'M-001', 2.0),
-(2, 'Paris', 'France', 'Boulogne-Billancourt', 'France', FALSE, 0, 'car', 'M-001', 1.9),
-(3, 'Marseille', 'France', 'La Défense', 'France', TRUE, 1, 'car', 'M-003', 1.8);
+(2, 'Paris', 'France', 'Boulogne-Billancourt', 'France', FALSE, 0, 'car', 'M-001', 1.9);
