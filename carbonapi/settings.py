@@ -1,6 +1,7 @@
 
 import os
 from pathlib import Path
+from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -28,7 +29,8 @@ INSTALLED_APPS = [
     'djoser',
     'corsheaders',
     'tripsservice',
-    'authservice'
+    'authservice',
+    'emissionsservice'
 ]
 
 CORS_ALLOWED_ORIGINS = [ 'http://localhost:8080' ] # Frontend URL
@@ -43,7 +45,9 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'USER_ID_FIELD': 'login'
+    'USER_ID_FIELD': 'login',
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(minutes=15),
 }
 
 MIDDLEWARE = [
@@ -82,7 +86,7 @@ DATABASES = {
         'PASSWORD': DB_PASSWORD,
         'HOST': DB_HOST,
         'PORT': DB_PORT,
-    }
+    },
 }
 
 AUTH_USER_MODEL = 'authservice.User'

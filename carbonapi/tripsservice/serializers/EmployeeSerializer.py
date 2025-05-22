@@ -10,10 +10,17 @@ class StatusSerializer(serializers.ModelSerializer):
         fields = ['status_name']
 
 
-class EmployeeSerializer(serializers.ModelSerializer):
+class EmployeeWithStatusSerializer(serializers.ModelSerializer):
 
     status = StatusSerializer()
 
     class Meta:
         model = Employee
         fields = ['first_name', 'last_name', 'email', 'status']
+
+
+class EmployeeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Employee
+        fields = ['first_name', 'last_name', 'email']

@@ -19,5 +19,6 @@ class Transport(models.Model):
             ("view_transport", "Can view transport"),
             ("add_transport", "Can add transport"),
             ("change_transport", "Can change transport"),
-            ("delete_transport", "Can delete transport")
+            ("delete_transport", "Can delete transport"),
+            ("view_all_transport", "Can view all transports"),
         ]

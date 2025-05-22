@@ -44,5 +44,6 @@ class Employee(models.Model):
             ("view_employee", "Can view employee"),
             ("add_employee", "Can add employee"),
             ("change_employee", "Can change employee"),
-            ("delete_employee", "Can delete employee")
+            ("delete_employee", "Can delete employee"),
+            ("view_all_employee", "Can view all employees"),
         ]

@@ -1,7 +1,7 @@
 
 <template>
     <div class="columns">
-        <div class="column is-4 is-offset-4">
+        <div class="column is-6 is-offset-3">
 
             <form @submit.prevent="submitForm">
 
@@ -39,9 +39,11 @@
 <script>
 import authservice from '@/services/authservice';
 import tripsservice from '@/services/tripsservice';
+import employeesservice from '@/services/employeesservice'
+import transportsservice from '@/services/transportsservice'
 
 export default {
-    name: 'LogIn',
+    name: 'LogInForm',
     data() {
         return {
             login: '',
@@ -65,8 +67,33 @@ export default {
                 const credentials = { login: this.login, password: this.password };
                 this.$store.dispatch('setUser', this.login);
                 const { access, refresh } = await authservice.login(credentials);
-                const trips = await tripsservice.fetchTrips(access);
-                this.$store.dispatch('setTrips', trips);
+
+                const response0 = await tripsservice.trips.fetchTrips(access);
+                this.$store.dispatch('setTrips', response0.trips);
+
+                let transports = [];
+                let employees = [];
+                let missions = [];
+
+                try {
+                    const response1 = await transportsservice.fetchTransports(access);
+                    transports = response1.transports;
+
+                    const response2 = await employeesservice.fetchEmployees(access);
+                    employees = response2.employees;
+
+                    const response3 = await tripsservice.missions.fetchMissions(access);
+                    missions = response3.missions;
+
+                    this.$store.dispatch('setIsManager');
+                } catch (error) {
+                    console.warn('Erreur lors du chargement :', error);
+                }
+
+                this.$store.dispatch('setTransports', transports);
+                this.$store.dispatch('setEmployees', employees);
+                this.$store.dispatch('setMissions', missions);
+
                 this.$router.push('/dashboard');
 
             } catch (error) {

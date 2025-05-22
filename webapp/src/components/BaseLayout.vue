@@ -19,14 +19,14 @@
 
 
 <script>
-  import Header from '@/components/Header.vue'
-  import Footer from '@/components/Footer.vue'
+  import Header from '@/components/Header'
+  import Footer from '@/components/Footer'
 
   export default {
     name: 'BaseLayout',
     components: {
       Header,
-      Footer
+      Footer,
     },
   }
 </script>
@@ -38,22 +38,29 @@
   .page {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    min-height: 200vh;
+  }
+
+  .navbar,
+  .navbar-brand {
+      height: 2rem !important;
+      min-height: unset;
   }
 
   .page-header {
     flex-shrink: 0;
+    height: 3rem;
   }
 
   .page-body {
     flex-grow: 1;
     overflow: auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    padding: 1rem;
   }
 
   .page-footer {
     flex-shrink: 0;
+    padding: 1rem;
+    height: 10rem;
   }
 </style>

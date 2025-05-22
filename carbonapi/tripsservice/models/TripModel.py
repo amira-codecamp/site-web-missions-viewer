@@ -24,7 +24,8 @@ class Mission(models.Model):
             ("view_mission", "Can view mission"),
             ("add_mission", "Can add mission"),
             ("change_mission", "Can change mission"),
-            ("delete_mission", "Can delete mission")
+            ("delete_mission", "Can delete mission"),
+            ("view_all_mission", "Can view all missions"),
         ]
 
 

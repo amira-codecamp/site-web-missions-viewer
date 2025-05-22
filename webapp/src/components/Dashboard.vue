@@ -49,7 +49,7 @@
     computed: {
       user() {
         return this.$store.state.user;
-      }
+      },
     },
     methods: {
       toggleBurger() {
@@ -58,6 +58,10 @@
       logout() {
         Promise.all([
           this.$store.dispatch('clearTrips'),
+          this.$store.dispatch('clearEmployees'),
+          this.$store.dispatch('clearTransports'),
+          this.$store.dispatch('clearMissions'),
+          this.$store.dispatch('clearIsManager'),
           this.$store.dispatch('clearUser')
         ]).then(() => {
           this.$router.push('/login');
@@ -68,7 +72,14 @@
       },
       viewDashboard() {
         this.$router.push('/dashboard');
-      }
+      },
+    },
+    watch: {
+      $route(to) {
+        if (to.path === '/dashboard') {
+          document.title = "Dashboard | LIPN-carbon";
+        }
+      },
     },
     mounted() {
       document.title = "Dashboard | LIPN-carbon";

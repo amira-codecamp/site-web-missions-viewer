@@ -139,7 +139,9 @@ INSERT INTO `Permissions` (permission_name, permission_desc) VALUES
 ('add_mission', 'Can add mission'),
 ('change_mission', 'Can modify mission'),
 ('delete_mission', 'Can delete mission'),
+('view_all_mission', 'Can view all missions'),
 ('view_employee', 'Can view employee'),
+('view_all_employee', 'Can view all employees'),
 ('add_employee', 'Can add employee'),
 ('change_employee', 'Can modify employee'),
 ('delete_employee', 'Can delete employee'),
@@ -155,6 +157,7 @@ INSERT INTO `Permissions` (permission_name, permission_desc) VALUES
 ('add_transport', 'Can add transport'),
 ('change_transport', 'Can modify transport'),
 ('delete_transport', 'Can delete transport'),
+('view_all_transport', 'Can view all transports'),
 ('view_group', 'Can view group'),
 ('add_group', 'Can add group'),
 ('change_group', 'Can modify group'),
@@ -167,7 +170,11 @@ INSERT INTO `Permissions` (permission_name, permission_desc) VALUES
 INSERT INTO Groups_permissions (permission, `group`) VALUES 
 ('view_trip', 'standard'),
 ('view_all_trip', 'admin'),
-('view_all_trip', 'missionmanager');
+('view_all_trip', 'missionmanager'),
+('add_trip', 'missionmanager'),
+('view_all_mission', 'missionmanager'),
+('view_all_transport', 'missionmanager'),
+('view_all_employee', 'missionmanager');
 
 INSERT INTO Users (login, password, date_joined, last_login, is_active, `group`, employee) VALUES 
 ('lacroix', 'pbkdf2_sha256$1000000$ev7fOcB3Rx1M8Av90qSSGm$BoDD/YWq4bpGPv9O+eOoAL0vHFdreGJpeI/WGBjoYpM=', '2010/03/10', '2025/05/08', TRUE, 'standard', 1),
@@ -180,7 +187,12 @@ INSERT INTO Transports (transport_name) VALUES
 ('car'),
 ('plane'),
 ('train'),
-('bus');
+('bus'),
+('cab'),
+('tram'),
+('rer'),
+('subway'),
+('ferry');
 
 INSERT INTO Missions (mission_num, start_date, end_date, mission_desc) VALUES
 ('M-001', '2024-06-01', '2024-06-05', 'Research Project'),
