@@ -1,12 +1,11 @@
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import LogInForm from '@/pages/LogInForm.vue'
+import TripsPage from '@/pages/TripsPage.vue'
+import MemberPage from '@/pages/MemberPage.vue'
+import TripForm from '@/pages/TripForm.vue'
+import { useStore } from '@/store'
 
-import { createRouter, createWebHistory } from 'vue-router';
-import LogInForm from '@/pages/LogInForm.vue';
-import Dashboard from '@/components/Dashboard.vue';
-import TripsPage from '@/pages/TripsPage.vue';
-import store from '@/store/index';
-
-
-const routes = [
+const routes: RouteRecordRaw[] = [
   {
     path: '/',
     redirect: '/login',
@@ -16,42 +15,35 @@ const routes = [
     name: 'login',
     component: LogInForm,
   },
-  // {
-  //   path: '/member',
-  //   name: 'member',
-  //   component: MemberPage,
-  //   meta: { requiresAuth: true },
-  // },
   {
-    path: '/dashboard',
-    name: 'dashboard',
-    component: Dashboard,
+    path: '/member',
+    name: 'member',
+    component: MemberPage,
     meta: { requiresAuth: true },
     children: [
       {
-        path: '/trips',
+        path: 'trips',
         name: 'trips',
-        component: TripsPage
+        component: TripsPage,
       },
-    ]
-  }
-];
-
+    ],
+  },
+]
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
-});
-
+})
 
 router.beforeEach((to, from, next) => {
-  const isAuthenticated = store.getters.isAuthenticated;
-  if (to.meta.requiresAuth && !isAuthenticated)  {
-    next('/login');
-  } else {
-    next();
+  const store = useStore()
+  const { isAuthenticated, state } = store
+
+  if (to.meta.requiresAuth && !isAuthenticated.value) {
+    return next('/login')
   }
-});
 
+  next()
+})
 
-export default router;
+export default router

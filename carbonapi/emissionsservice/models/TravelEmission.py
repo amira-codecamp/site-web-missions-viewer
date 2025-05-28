@@ -138,5 +138,5 @@ class TravelEmission:
         if factor is None: return None
         factor_value = factor['total']['total']
         
-        carbon_footprint = corrected_distance * factor_value
-        return carbon_footprint
+        carbon_footprint_kg = corrected_distance * factor_value
+        return carbon_footprint_kg

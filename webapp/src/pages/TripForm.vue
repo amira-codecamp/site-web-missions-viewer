@@ -185,7 +185,6 @@
           <!-- Submit -->
           <div class="field">
             <div class="control">
-              <PasswordPrompt ref="passwordPrompt" />
               <button class="button is-dark is-fullwidth is-medium">
                 + Add Trip
               </button>
@@ -198,196 +197,172 @@
   </div>
 </template>
 
-<script>
-import tripsservice from '@/services/tripsservice'
-import authservice from '@/services/authservice'
-import geonamesservice from '@/services/geonamesservice'
-import emissionsservice from '@/services/emissionsservice'
+<script setup>
+import { ref, computed, watch, nextTick } from 'vue'
+import { useStore } from '@/store'
 import debounce from 'lodash.debounce'
-import PasswordPrompt from '@/components/PasswordPrompt.vue'
 import { LMap, LTileLayer, LMarker, LPolyline } from '@vue-leaflet/vue-leaflet'
 
-export default {
-  name: 'TripForm',
-  components: {
-    PasswordPrompt,
-    LMap, 
-    LTileLayer, 
-    LMarker,
-    LPolyline
+import authservice from '@/services/authservice'
+import geonamesservice from '@/services/geonamesservice'
+import tripsservice from '@/services/tripsservice'
+import emissionsservice from '@/services/emissionsservice'
+
+defineOptions({ name: 'TripForm' })
+
+const store = useStore()
+
+const form = ref({
+  mission_num: '',
+  transport_name: '',
+  employee: {
+    first_name: '',
+    last_name: '',
+    email: '',
   },
-  data() {
-    return {
-      form: {
-        mission_num: '',
-        transport_name: '',
-        employee: {
-          first_name: '',
-          last_name: '',
-          email: '',
-        },
-        departure_city: '',
-        departure_country: '',
-        destination_city: '',
-        destination_country: '',
-        is_round_trip: false,
-        carpooling: 1,
-        carbon_footprint: null,
-      },
-      departureCities: [],
-      destinationCities: [],
-      quantityField: 1,
-      selectedDepartureCity: '',
-      selectedDestinationCity: '',
-      initialBounds: null
-    }
-  },
-  computed: {
-    missions() {
-      return this.$store.state.missions;
-    },
-    employees() {
-      return this.$store.state.employees;
-    },
-    transports() {
-      return this.$store.state.transports;
-    },
-  },
-  methods: {
-    formatEmployee(emp) {
-      return `${emp.first_name} ${emp.last_name} <${emp.email}>`;
-    },
-    countryCodeToFlag(countryIsoCode) {
-      if (!countryIsoCode || typeof countryIsoCode !== 'string') {
-        return '';
-      }
-      return countryIsoCode
-        .toUpperCase()
-        .replace(/./g, c => String.fromCodePoint(c.charCodeAt(0) + 127397));
-    },
-    formatCity(city) {
-      const country_flag = this.countryCodeToFlag(city.countryCode);
-      return `${city.name}, ${city.countryName} ${country_flag}`;
-    },
-    async fetchCities(cityName) {
-      const response = await geonamesservice.fetchCities(cityName);
-      return response;
-    },
-    callGeoName: debounce(function(cityName, targetKey) {
-      if (cityName.length >= 2) {
-        this.fetchCities(cityName)
-          .then(response => {
-            this[targetKey] = response;
-          })
-          .catch(err => {
-            console.error('GeoName fetch error:', err);
-          });
-      }
-    }, 400),
-    onDepartureInput() {
-      this.callGeoName(this.selectedDepartureCity, 'departureCities');
-    },
-    onDestinationInput() {
-      this.callGeoName(this.selectedDestinationCity, 'destinationCities');
-    },
-    getDepartureCoords() {
-      const city = this.departureCities.find(cit => this.formatCity(cit) === this.selectedDepartureCity);
-      return city ? [city.lat, city.lng] : null;
-    },
-    getDestinationCoords() {
-      const city = this.destinationCities.find(cit => this.formatCity(cit) === this.selectedDestinationCity);
-      return city ? [city.lat, city.lng] : null;
-    },
-    async fitBoundsMap() {
-      await this.$nextTick();
+  departure_city: '',
+  departure_country: '',
+  destination_city: '',
+  destination_country: '',
+  is_round_trip: false,
+  carpooling: 1,
+  carbon_footprint: null,
+})
 
-      const map = this.$refs.mapRef?.mapObject || this.$refs.mapRef?.leafletObject;
-      const polyline = this.$refs.polylineRef?.leafletObject;
+const departureCities = ref([])
+const destinationCities = ref([])
+const quantityField = ref(1)
+const selectedDepartureCity = ref('')
+const selectedDestinationCity = ref('')
+const selectedEmployee = ref('')
+const mapRef = ref(null)
+const polylineRef = ref(null)
 
-      if (map && polyline) {
-        const bounds = polyline.getBounds();
-        if (bounds.isValid()) {
-          map.fitBounds(bounds, { animate: false });
-        } else {
-          console.warn('Bounds invalid');
-        }
-      } else {
-        console.warn('Map or polyline not found');
-      }
-    },
-    async submitForm() {
-      try {
-        const pwd = await this.$refs.passwordPrompt.open();
-        if (!pwd) {
-          return;
-        }
-        const credentials = { login: this.$store.state.user, password: pwd };
-        const { access, _ } = await authservice.login(credentials);
+const missions = computed(() => store.state.missions)
+const employees = computed(() => store.state.employees)
+const transports = computed(() => store.state.transports)
 
-        this.form.employee = this.employees.find(emp => this.formatEmployee(emp) === this.selectedEmployee);
+const formatEmployee = (emp) => `${emp.first_name} ${emp.last_name} <${emp.email}>`
 
-        const city1 = this.departureCities.find(cit => this.formatCity(cit) === this.selectedDepartureCity);
-        this.form.departure_country = city1.countryName;
-        this.form.departure_city = city1.name;
-
-        const city2 = this.destinationCities.find(cit => this.formatCity(cit) === this.selectedDestinationCity);
-        this.form.destination_country = city2.countryName;
-        this.form.destination_city = city2.name;
-
-        const mission = this.missions.find(mission => mission.mission_num === this.form.mission_num);
-        const full_year = new Date(mission.start_date).getFullYear().toString();
-
-        const payload = {
-          transport: this.form.transport_name,
-          departure_country: city1.countryCode,
-          destination_country: city2.countryCode,
-          departure_lat: city1.lat,
-          departure_long: city1.lng,
-          destination_lat: city2.lat,
-          destination_long: city2.lng,
-          carpooling: this.form.carpooling,
-          year: full_year,
-          is_round_trip: this.form.is_round_trip,
-        };
-
-        const response0 = await emissionsservice.getCarbonFootprint(payload, access);
-        this.form.carbon_footprint = Number(Number(response0.carbon_footprint).toFixed(2));
-
-        const numRows = this.quantityField;
-        for (let i = 0; i < numRows; i++) {
-          await tripsservice.trips.createTrip(access, {
-            ...this.form,
-          });
-        }
-
-        const response = await tripsservice.trips.fetchTrips(access);
-        this.$store.dispatch('setTrips', response.trips);
-
-        alert(`${numRows} trip${numRows === 1 ? '' : 's'} created successfully!`);
-
-        setTimeout(() => {
-          this.$emit('close');
-        }, 1000);
-      } catch (error) {
-        if (error.response && error.response.data) {
-          const messages = [];
-          for (const property in error.response.data) {
-            messages.push(`${property}: ${error.response.data[property]}`);
-          }
-          alert(messages.join('\n'));
-        } else {
-          alert('Something went wrong. Please try again.');
-        }
-      }
-    },
-  },
-  watch: {
-    selectedDepartureCity() {
-      this.fitBoundsMap();
-    },
-    selectedDestinationCity() {
-      this.fitBoundsMap();
-    }
-  },
+const countryCodeToFlag = (countryIsoCode) => {
+  if (!countryIsoCode || typeof countryIsoCode !== 'string') return ''
+  return countryIsoCode.toUpperCase().replace(/./g, c => String.fromCodePoint(c.charCodeAt(0) + 127397))
 }
+
+const formatCity = (city) => {
+  const flag = countryCodeToFlag(city.countryCode)
+  return `${city.name}, ${city.countryName} ${flag}`
+}
+
+const fetchCities = async (cityName) => {
+  const response = await geonamesservice.fetchCities(cityName)
+  return response
+}
+
+const callGeoName = debounce(async (cityName, targetKey) => {
+  if (cityName.length >= 2) {
+    try {
+      const response = await fetchCities(cityName)
+      if (targetKey === 'departureCities') departureCities.value = response
+      else if (targetKey === 'destinationCities') destinationCities.value = response
+    } catch (err) {
+      console.error('GeoName fetch error:', err)
+    }
+  }
+}, 400)
+
+const onDepartureInput = () => {
+  callGeoName(selectedDepartureCity.value, 'departureCities')
+}
+
+const onDestinationInput = () => {
+  callGeoName(selectedDestinationCity.value, 'destinationCities')
+}
+
+const getDepartureCoords = () => {
+  const city = departureCities.value.find(cit => formatCity(cit) === selectedDepartureCity.value)
+  return city ? [city.lat, city.lng] : null
+}
+
+const getDestinationCoords = () => {
+  const city = destinationCities.value.find(cit => formatCity(cit) === selectedDestinationCity.value)
+  return city ? [city.lat, city.lng] : null
+}
+
+const fitBoundsMap = async () => {
+  await nextTick()
+  const map = mapRef.value?.mapObject || mapRef.value?.leafletObject
+  const polyline = polylineRef.value?.leafletObject
+
+  if (map && polyline) {
+    const bounds = polyline.getBounds()
+    if (bounds.isValid()) {
+      map.fitBounds(bounds, { animate: false })
+    } else {
+      console.warn('Bounds invalid')
+    }
+  } else {
+    console.warn('Map or polyline not found')
+  }
+}
+
+const submitForm = async () => {
+  try {
+
+    const access = store.state.accessToken
+    
+    const [dep_city_obj, dest_city_obj] = [
+        departureCities.value.find(cit => formatCity(cit) === selectedDepartureCity.value),
+        destinationCities.value.find(cit => formatCity(cit) === selectedDestinationCity.value)
+    ]
+
+    const mission = missions.value.find(m => m.mission_num === form.value.mission_num)
+    const full_year = new Date(mission.start_date).getFullYear().toString()
+
+    const payload = {
+      departure_country: dep_city_obj.countryCode,
+      departure_lat: dep_city_obj.lat,
+      departure_long: dep_city_obj.lng,
+      destination_country: dest_city_obj.countryCode,
+      destination_lat: dest_city_obj.lat,
+      destination_long: dest_city_obj.lng,
+      transport: form.value.transport_name,
+      carpooling: form.value.carpooling,
+      is_round_trip: form.value.is_round_trip,
+      year: full_year,
+    }
+
+    const response0 = await emissionsservice.getCarbonFootprint(payload, access)
+    form.value.carbon_footprint = Number(Number(response0.carbon_footprint).toFixed(2))
+
+    form.value.departure_country = dep_city_obj.countryName
+    form.value.departure_city = dep_city_obj.name
+    form.value.destination_country = dest_city_obj.countryName
+    form.value.destination_city = dest_city_obj.name
+
+    form.value.employee = employees.value.find(emp => formatEmployee(emp) === selectedEmployee.value)
+
+    const numRows = quantityField.value
+    for (let i = 0; i < numRows; i++) {
+      await tripsservice.trips.createTrip(access, { ...form.value })
+    }
+
+    const response1 = await tripsservice.trips.fetchTrips(access)
+    store.setItem('trips', response1.trips)
+
+    alert(`${quantityField.value} trip${quantityField.value === 1 ? '' : 's'} created successfully!`)
+
+    setTimeout(() => {
+    }, 1000)
+  } catch (error) {
+    if (error.response?.data) {
+      const messages = Object.entries(error.response.data).map(([key, val]) => `${key}: ${val}`)
+      alert(messages.join('\n'))
+    } else {
+      alert('Something went wrong. Please try again.')
+    }
+  }
+}
+
+watch([selectedDepartureCity, selectedDestinationCity], fitBoundsMap)
 </script>

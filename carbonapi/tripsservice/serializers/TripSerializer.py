@@ -39,7 +39,6 @@ class TripCreateSerializer(serializers.ModelSerializer):
         fields = [
             'departure_city', 'departure_country',
             'destination_city', 'destination_country', 
-            'is_round_trip', 'carpooling',
             'is_round_trip', 'carpooling', 'carbon_footprint',
             'transport_name', 'mission_num', 'employee'
         ]

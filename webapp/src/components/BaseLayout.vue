@@ -1,7 +1,5 @@
-
 <template>
   <div class="page">
-
     <div class="page-header">
       <Header />
     </div>
@@ -13,54 +11,47 @@
     <div class="page-footer">
       <Footer />
     </div>
-
   </div>
 </template>
 
+<script setup>
+defineOptions({
+  name: 'BaseLayout',
+})
 
-<script>
-  import Header from '@/components/Header'
-  import Footer from '@/components/Footer'
-
-  export default {
-    name: 'BaseLayout',
-    components: {
-      Header,
-      Footer,
-    },
-  }
+import Header from '@/components/Header'
+import Footer from '@/components/Footer'
 </script>
 
-
 <style lang="scss">
-  @import "~bulma/bulma";
+@import "~bulma/bulma";
 
-  .page {
-    display: flex;
-    flex-direction: column;
-    min-height: 200vh;
-  }
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 200vh;
+}
 
-  .navbar,
-  .navbar-brand {
-      height: 2rem !important;
-      min-height: unset;
-  }
+.navbar,
+.navbar-brand {
+  height: 2rem !important;
+  min-height: unset;
+}
 
-  .page-header {
-    flex-shrink: 0;
-    height: 3rem;
-  }
+.page-header {
+  flex-shrink: 0;
+  height: 3rem;
+}
 
-  .page-body {
-    flex-grow: 1;
-    overflow: auto;
-    padding: 1rem;
-  }
+.page-body {
+  flex-grow: 1;
+  overflow: auto;
+  padding: 1rem;
+}
 
-  .page-footer {
-    flex-shrink: 0;
-    padding: 1rem;
-    height: 10rem;
-  }
+.page-footer {
+  flex-shrink: 0;
+  padding: 1rem;
+  height: 10rem;
+}
 </style>
