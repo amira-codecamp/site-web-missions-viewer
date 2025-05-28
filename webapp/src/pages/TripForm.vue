@@ -309,8 +309,29 @@ const fitBoundsMap = async () => {
 const submitForm = async () => {
   try {
 
+    try {
+      const refresh = store.state.refreshToken
+      const responsetok = await authservice.refresh(refresh);
+      store.setItem("accessToken", responsetok.access);
+
+    } catch (error) {
+      alert("Session expired. Please login again.");
+
+      store.clearItem('trips')
+      store.clearItem('employees')
+      store.clearItem('transports')
+      store.clearItem('missions')
+      store.clearItem('isManager')
+      store.clearItem('user')
+      store.clearItem('accessToken')
+      store.clearItem('refreshToken')
+
+      window.location.href = '/login';
+      return;
+    }
+
     const access = store.state.accessToken
-    
+
     const [dep_city_obj, dest_city_obj] = [
         departureCities.value.find(cit => formatCity(cit) === selectedDepartureCity.value),
         destinationCities.value.find(cit => formatCity(cit) === selectedDestinationCity.value)
