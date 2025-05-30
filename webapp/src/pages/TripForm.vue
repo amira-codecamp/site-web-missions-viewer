@@ -91,7 +91,7 @@
           </div>
 
           <!-- Quantity -->
-          <div class="field mb-5">
+          <div class="field mb-5" v-if="!disableQuantity">
             <label class="label has-text-weight-medium has-text-grey-dark">Quantity</label>
             <div class="control">
               <input
@@ -186,7 +186,8 @@
           <div class="field">
             <div class="control">
               <button class="button is-dark is-fullwidth is-medium">
-                + Add Trip
+                <span v-if="!disableQuantity">+ Add Trip</span>
+                <span v-if="disableQuantity">Alter Trip</span>
               </button>
             </div>
           </div>
@@ -212,23 +213,22 @@ defineOptions({ name: 'TripForm' })
 
 const store = useStore()
 
-const form = ref({
-  mission_num: '',
-  transport_name: '',
-  employee: {
-    first_name: '',
-    last_name: '',
-    email: '',
+const props = defineProps({
+  operation: {
+    type: String,
+    required: true,
   },
-  departure_city: '',
-  departure_country: '',
-  destination_city: '',
-  destination_country: '',
-  is_round_trip: false,
-  carpooling: 1,
-  carbon_footprint: null,
+  trip: {
+    type: Object,
+    required: true,
+  },
+  disableQuantity: {
+    type: String,
+    required: true,
+  }
 })
 
+const form = ref({})
 const departureCities = ref([])
 const destinationCities = ref([])
 const quantityField = ref(1)
@@ -237,10 +237,56 @@ const selectedDestinationCity = ref('')
 const selectedEmployee = ref('')
 const mapRef = ref(null)
 const polylineRef = ref(null)
+const selectedTrip = ref(null)
+const disableQuantity = ref(null)
 
 const missions = computed(() => store.state.missions)
 const employees = computed(() => store.state.employees)
 const transports = computed(() => store.state.transports)
+
+const initForm = () => {
+  if (props.operation === 'add') {
+    form.value = {
+      mission_num: '',
+      transport_name: '',
+      employee: {
+        first_name: '',
+        last_name: '',
+        email: '',
+      },
+      departure_city: '',
+      departure_country: '',
+      destination_city: '',
+      destination_country: '',
+      is_round_trip: false,
+      carpooling: 1,
+      carbon_footprint: null,
+    }
+    selectedEmployee.value = ''
+    selectedDepartureCity.value = ''
+    selectedDestinationCity.value = ''
+  }
+  // else if (props.operation === 'alter' && (props.trip)) {
+  //   selectedTrip.value = props.trip;
+  //   disableQuantity.value = props.disableQuantity;
+  //   form.value = {
+  //     trip_id: selectedTrip.value.trip_id,
+  //     mission_num: selectedTrip.value.mission.mission_num,
+  //     transport_name: selectedTrip.value.transport.transport_name,
+  //     is_round_trip: selectedTrip.value.is_round_trip,
+  //     carpooling: selectedTrip.value.carpooling,
+  //     employee: selectedTrip.value.employee,
+  //     departure_city: selectedTrip.value.departure_city,
+  //     departure_country: selectedTrip.value.departure_country,
+  //     destination_city: selectedTrip.value.destination_city,
+  //     destination_country: selectedTrip.value.destination_country,
+  //     carbon_footprint: 3,
+  //   }
+  //   selectedEmployee.value = formatEmployee(selectedTrip.value.employee)
+  //   selectedDepartureCity.value = `${selectedTrip.value.departure_city}, ${selectedTrip.value.departure_country}`;
+  //   selectedDestinationCity.value = `${selectedTrip.value.destination_city}, ${selectedTrip.value.destination_country}`;
+  // }
+}
 
 const formatEmployee = (emp) => `${emp.first_name} ${emp.last_name} <${emp.email}>`
 
@@ -333,8 +379,8 @@ const submitForm = async () => {
     const access = store.state.accessToken
 
     const [dep_city_obj, dest_city_obj] = [
-        departureCities.value.find(cit => formatCity(cit) === selectedDepartureCity.value),
-        destinationCities.value.find(cit => formatCity(cit) === selectedDestinationCity.value)
+      departureCities.value.find(cit => formatCity(cit) === selectedDepartureCity.value),
+      destinationCities.value.find(cit => formatCity(cit) === selectedDestinationCity.value)
     ]
 
     const mission = missions.value.find(m => m.mission_num === form.value.mission_num)
@@ -363,18 +409,31 @@ const submitForm = async () => {
 
     form.value.employee = employees.value.find(emp => formatEmployee(emp) === selectedEmployee.value)
 
-    const numRows = quantityField.value
-    for (let i = 0; i < numRows; i++) {
-      await tripsservice.trips.createTrip(access, { ...form.value })
+    if (props.operation === 'add') {
+
+      const numRows = quantityField.value
+      for (let i = 0; i < numRows; i++) {
+        await tripsservice.trips.createTrip(access, { ...form.value })
+      }
+
+      const response1 = await tripsservice.trips.fetchTrips(access)
+      store.setItem('trips', response1.trips)
+
+      alert(`${quantityField.value} trip${quantityField.value === 1 ? '' : 's'} created successfully!`)
+
+    } else if (props.operation === 'alter') {
+
+      // await tripsservice.trips.alterTrip(access, { ...form.value });
+
+      // const response2 = await tripsservice.trips.fetchTrips(access);
+      // store.setItem('trips', response2.trips);
+
+      // alert('Trip updated successfully!');
     }
-
-    const response1 = await tripsservice.trips.fetchTrips(access)
-    store.setItem('trips', response1.trips)
-
-    alert(`${quantityField.value} trip${quantityField.value === 1 ? '' : 's'} created successfully!`)
 
     setTimeout(() => {
     }, 1000)
+
   } catch (error) {
     if (error.response?.data) {
       const messages = Object.entries(error.response.data).map(([key, val]) => `${key}: ${val}`)
@@ -386,4 +445,12 @@ const submitForm = async () => {
 }
 
 watch([selectedDepartureCity, selectedDestinationCity], fitBoundsMap)
+
+watch(
+  () => [props.action, props.trip],
+  () => {
+    initForm();
+  },
+  { immediate: true }
+);
 </script>

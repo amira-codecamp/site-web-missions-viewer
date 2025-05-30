@@ -3,14 +3,28 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
+
 from tripsservice.models.TripModel import Trip, Mission
 from tripsservice.models.EmployeeModel import Employee
-from tripsservice.views.TripPermission import IsViewTripPermission, IsViewAllTripPermission, IsAddTripPermission, IsViewAllMissionPermission
-from tripsservice.serializers.TripSerializer import TripSerializer, TripCreateSerializer, MissionSerializer
+
+from tripsservice.views.TripPermission import (
+    IsViewTripPermission,
+    IsViewAllTripPermission,
+    IsAddTripPermission,
+    IsViewAllMissionPermission,
+    IsDeleteTripPermission,
+    IsModifyTripPermission,
+)
+
+from tripsservice.serializers.TripSerializer import (
+    TripSerializer,
+    TripCreateSerializer,
+    TripIdSerializer,
+    MissionSerializer,
+)
 
 
 class TripView(APIView):
-    
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -18,10 +32,13 @@ class TripView(APIView):
             trips = Trip.objects.all()
         elif IsViewTripPermission().has_permission(request, self):
             trips = Trip.objects.filter(employee_id=request.user.employee_id)
+        else:
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+
         return Response({
             "trips": TripSerializer(trips, many=True).data,
         })
-    
+
     def post(self, request):
         if IsAddTripPermission().has_permission(request, self):
             serializer = TripCreateSerializer(data=request.data)
@@ -31,10 +48,12 @@ class TripView(APIView):
                 mission_num = validated_data.pop('mission_num')
                 transport_name = validated_data.pop('transport_name')
                 carbon_footprint = validated_data.pop('carbon_footprint')
+                try:
+                    employee_obj = Employee.objects.get(email=employee['email'])
+                except Employee.DoesNotExist:
+                    return Response({'error': 'Employee not found.'}, status=status.HTTP_400_BAD_REQUEST)
                 trip = Trip.objects.create(
-                    employee=Employee.objects.get(
-                        email=employee['email']
-                    ),
+                    employee=employee_obj,
                     mission=mission_num,
                     transport=transport_name,
                     carbon_footprint=carbon_footprint,
@@ -45,15 +64,44 @@ class TripView(APIView):
         else:
             return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
 
+    def delete(self, request):
+        if IsDeleteTripPermission().has_permission(request, self):
+            serializer = TripIdSerializer(data=request.data)
+            if serializer.is_valid():
+                trip_id = serializer.validated_data['trip_id']
+                try:
+                    trip = Trip.objects.get(trip_id=trip_id)
+                    trip.delete()
+                    return Response({'message': 'Trip deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
+                except Trip.DoesNotExist:
+                    return Response({'error': 'Trip not found.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+        
+    def put(self, request):
+        if not IsModifyTripPermission().has_permission(request, self):
+            return Response({'detail': 'Permission denied.'}, status=403)
+        trip_id = request.data.get('trip_id')
+        try:
+            trip = Trip.objects.get(trip_id=trip_id)
+        except Trip.DoesNotExist:
+            return Response({'detail': 'Trip not found.'}, status=404)
+        serializer = TripSerializer(trip, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=200)
+
 
 class MissionView(APIView):
-    
-    permission_classes = [IsAuthenticated, IsViewAllMissionPermission]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        missions = Mission.objects.all()
+        if IsViewAllMissionPermission().has_permission(request, self):
+            missions = Mission.objects.all()
+        else:
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+        
         return Response({
             "missions": MissionSerializer(missions, many=True).data,
         })
-    
-    # def post(self, request):

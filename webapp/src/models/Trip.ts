@@ -35,3 +35,7 @@ export interface TripCreate {
     mission_num: string;
     employee: Employee;
 }
+
+export interface TripId {
+    trip_id: number;
+}

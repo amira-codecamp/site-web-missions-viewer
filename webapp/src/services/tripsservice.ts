@@ -1,11 +1,12 @@
 
 import axios from 'axios';
-import { Trip, TripCreate, Mission } from '@/models/Trip';
+import { Trip, TripCreate, TripId, Mission } from '@/models/Trip';
 
 const API_URL = process.env.VUE_APP_SERVER;
 
 
 const trips = {
+
   async fetchTrips(token: string): Promise<Trip[]> {
     const response = await axios.get<Trip[]>(
       `${API_URL}/api/trips`,
@@ -18,8 +19,35 @@ const trips = {
     );
     return response.data;
   },
+
   async createTrip(token: string, tripData: TripCreate): Promise<Trip> {
     const response = await axios.post<Trip>(
+      `${API_URL}/api/trips/`,
+      tripData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data;
+  },
+
+  async deleteTrip(token: string, tripIdData: TripId): Promise<void> {
+    const payload = { trip_id: Number(tripIdData.trip_id) };
+
+    await axios.delete(`${API_URL}/api/trips/`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      data: payload,
+    });
+  },
+
+  async alterTrip(token: string, tripData: TripCreate): Promise<Trip> {
+    const response = await axios.put<Trip>(
       `${API_URL}/api/trips/`,
       tripData,
       {

@@ -18,7 +18,7 @@ const cities = {
       console.error('GeoNames API error:', error);
       throw error;
     }
-  }
+  },
 };
 
 

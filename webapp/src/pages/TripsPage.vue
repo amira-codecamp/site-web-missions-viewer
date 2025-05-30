@@ -43,7 +43,7 @@
               </div>
               <div class="column is-3"></div>
               <div class="column is-1">
-                <button class="button is-dark is-fullwidth is-small" v-if="isManager" @click="showForm">Add</button>
+                <button class="button is-dark is-fullwidth is-small" v-if="isManager" @click="showAddForm">Add</button>
               </div>
               <div class="column is-1">
                 <button class="button is-dark is-fullwidth is-small" @click="exportToXLSX">Export</button>
@@ -63,6 +63,8 @@
                     <th>Round Trip</th>
                     <th>Footprint</th>
                     <th>Employee</th>
+                    <th></th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -76,23 +78,66 @@
                     <td>{{ trip.is_round_trip === true ? '×' : '' }}</td>
                     <td class="has-text-weight-semibold">{{ trip.carbon_footprint }} kg CO2</td>
                     <td>{{ trip.employee.first_name }} {{ trip.employee.last_name }}</td>
+                    <td>
+                      <button 
+                        class="button is-info is-light is-small" 
+                        v-if="isManager" 
+                        @click="showAlterForm(trip)"
+                        style="font-weight: bold; padding: 0 6px;"
+                        title="Modify trip">
+                        Modify
+                      </button>
+                    </td>
+                    <td>
+                      <button 
+                        v-if="isManager" 
+                        class="button is-small is-danger is-light" 
+                        @click="deleteTrip(trip.trip_id)" 
+                        title="Delete trip"
+                        style="font-weight:bold; padding: 0 6px;"
+                      >
+                        Delete
+                      </button>
+                    </td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
-            <div class="modal" :class="{ 'is-active': showTripForm }">
-              <div class="modal-background" @click="hideForm"></div>
+            <div class="modal" :class="{ 'is-active': showAddTripForm }">
+              <div class="modal-background" @click="hideAddForm"></div>
               <div class="modal-card" style="width: 90%;">
                 <header class="modal-card-head has-background-white">
                   <p class="modal-card-title has-text-grey-dark">Add a New Trip</p>
-                  <button class="delete" aria-label="close" @click="hideForm"></button>
+                  <button class="delete" aria-label="close" @click="hideAddForm"></button>
                 </header>
                 <section class="modal-card-body has-background-light">
-                  <TripForm @close="hideForm" />
+                  <TripForm
+                  :operation="'add'"
+                  :trip="null" 
+                  :disableQuantity="'false'"
+                  @close="hideAddForm" />
                 </section>
               </div>
             </div>
+
+            <div class="modal" :class="{ 'is-active': showAlterTripForm }">
+              <div class="modal-background" @click="hideAlterForm"></div>
+              <div class="modal-card" style="width: 90%;">
+                <header class="modal-card-head has-background-white">
+                  <p class="modal-card-title has-text-grey-dark">Alter Trip</p>
+                  <button class="delete" aria-label="close" @click="hideAlterForm"></button>
+                </header>
+                <section class="modal-card-body has-background-light">
+                  <TripForm
+                  :operation="'alter'"
+                  :trip="selectedTrip"
+                  :disableQuantity="'true'"
+                  @close="hideAlterForm" />
+                </section>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -107,6 +152,9 @@ defineOptions({
   name: 'TripsPage',
 })
 
+import tripsservice from '@/services/tripsservice'
+import authservice from '@/services/authservice'
+
 import { useStore } from '@/store'
 import { ref, computed, onMounted } from 'vue'
 import Chart from '@/components/Chart.vue'
@@ -116,7 +164,9 @@ import { saveAs } from 'file-saver'
 
 const store = useStore()
 const search = ref('')
-const showTripForm = ref(false)
+const showAddTripForm = ref(false)
+const showAlterTripForm = ref(false)
+const selectedTrip = ref(null)
 
 const isManager = computed(() => store.state.isManager)
 const trips = computed(() => store.state.trips)
@@ -197,6 +247,53 @@ const filteredTrips = computed(() => {
   })
 })
 
+const fetchToken = async () => {
+  try {
+    const refresh = store.state.refreshToken;
+    const responsetok = await authservice.refresh(refresh);
+    store.setItem("accessToken", responsetok.access);
+
+  } catch (error) {
+    alert("Session expired. Please login again.");
+
+    store.clearItem('trips');
+    store.clearItem('employees');
+    store.clearItem('transports');
+    store.clearItem('missions');
+    store.clearItem('isManager');
+    store.clearItem('user');
+    store.clearItem('accessToken');
+    store.clearItem('refreshToken');
+
+    window.location.href = '/login';
+    return;
+  }
+}
+
+const deleteTrip = async (tripId) => {
+  try {
+
+    await fetchToken();
+
+    const access = store.state.accessToken;
+
+    await tripsservice.trips.deleteTrip(access, { trip_id: tripId });
+
+    const response1 = await tripsservice.trips.fetchTrips(access);
+    store.setItem('trips', response1.trips);
+
+    alert(`Trip deleted successfully!`)
+  
+  } catch (error) {
+    if (error.response?.data) {
+      const messages = Object.entries(error.response.data).map(([key, val]) => `${key}: ${val}`)
+      alert(messages.join('\n'))
+    } else {
+      alert('Something went wrong. Please try again.')
+    }
+  }
+}
+
 function exportToXLSX() {
   if (!filteredTrips.value.length) {
     alert('No trips to export !')
@@ -222,12 +319,22 @@ function exportToXLSX() {
   saveAs(blob, 'trips_export.xlsx')
 }
 
-function showForm() {
-  showTripForm.value = true
+function showAlterForm(trip) {
+  selectedTrip.value = trip
+  showAlterTripForm.value = true
 }
 
-function hideForm() {
-  showTripForm.value = false
+function hideAlterForm() {
+  selectedTrip.value = null
+  showAlterTripForm.value = false
+}
+
+function showAddForm() {
+  showAddTripForm.value = true
+}
+
+function hideAddForm() {
+  showAddTripForm.value = false
 }
 
 onMounted(() => {

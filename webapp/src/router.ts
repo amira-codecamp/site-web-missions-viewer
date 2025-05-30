@@ -2,7 +2,6 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import LogInForm from '@/pages/LogInForm.vue'
 import TripsPage from '@/pages/TripsPage.vue'
 import MemberPage from '@/pages/MemberPage.vue'
-import TripForm from '@/pages/TripForm.vue'
 import { useStore } from '@/store'
 
 const routes: RouteRecordRaw[] = [

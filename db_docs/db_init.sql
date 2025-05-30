@@ -174,7 +174,9 @@ INSERT INTO Groups_permissions (permission, `group`) VALUES
 ('add_trip', 'missionmanager'),
 ('view_all_mission', 'missionmanager'),
 ('view_all_transport', 'missionmanager'),
-('view_all_employee', 'missionmanager');
+('view_all_employee', 'missionmanager'),
+('delete_trip', 'missionmanager'),
+('change_trip', 'missionmanager');
 
 INSERT INTO Users (login, password, date_joined, last_login, is_active, `group`, employee) VALUES 
 ('lacroix', 'pbkdf2_sha256$1000000$ev7fOcB3Rx1M8Av90qSSGm$BoDD/YWq4bpGPv9O+eOoAL0vHFdreGJpeI/WGBjoYpM=', '2010/03/10', '2025/05/08', TRUE, 'standard', 1),

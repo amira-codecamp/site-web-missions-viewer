@@ -29,6 +29,10 @@ class TripSerializer(serializers.ModelSerializer):
         ]
 
 
+class TripIdSerializer(serializers.Serializer):
+    trip_id = serializers.IntegerField()
+
+
 class TripCreateSerializer(serializers.ModelSerializer):
     transport_name = serializers.PrimaryKeyRelatedField(queryset=Transport.objects.all())
     mission_num = serializers.PrimaryKeyRelatedField(queryset=Mission.objects.all())
