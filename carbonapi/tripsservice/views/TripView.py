@@ -19,6 +19,7 @@ from tripsservice.views.TripPermission import (
 from tripsservice.serializers.TripSerializer import (
     TripSerializer,
     TripCreateSerializer,
+    TripAlterSerializer,
     TripIdSerializer,
     MissionSerializer,
 )
@@ -81,16 +82,24 @@ class TripView(APIView):
         
     def put(self, request):
         if not IsModifyTripPermission().has_permission(request, self):
-            return Response({'detail': 'Permission denied.'}, status=403)
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
         trip_id = request.data.get('trip_id')
         try:
             trip = Trip.objects.get(trip_id=trip_id)
         except Trip.DoesNotExist:
-            return Response({'detail': 'Trip not found.'}, status=404)
-        serializer = TripSerializer(trip, data=request.data, partial=True)
+            return Response({'detail': 'Trip not found.'}, status=status.HTTP_404_NOT_FOUND)
+        employee_data = request.data.get('employee')
+        try:
+            employee_obj = Employee.objects.get(email=employee_data['email'])
+        except Employee.DoesNotExist:
+            return Response({'error': 'Employee not found.'}, status=status.HTTP_400_BAD_REQUEST)
+        request.data['employee'] = employee_obj.employee_id
+        request.data['mission'] = request.data.pop('mission_num')
+        request.data['transport'] = request.data.pop('transport_name')
+        serializer = TripAlterSerializer(trip, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=200)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class MissionView(APIView):

@@ -124,7 +124,7 @@
                     <option
                       v-for="city in departureCities"
                       :key="city.geonameId"
-                      :value="formatCity(city)"
+                      :value="formatCityWithFlag(city)"
                     />
                   </datalist>
                 </div>
@@ -148,7 +148,7 @@
                     <option
                       v-for="city in destinationCities"
                       :key="city.geonameId"
-                      :value="formatCity(city)"
+                      :value="formatCityWithFlag(city)"
                     />
                   </datalist>
                 </div>
@@ -266,26 +266,27 @@ const initForm = () => {
     selectedDepartureCity.value = ''
     selectedDestinationCity.value = ''
   }
-  // else if (props.operation === 'alter' && (props.trip)) {
-  //   selectedTrip.value = props.trip;
-  //   disableQuantity.value = props.disableQuantity;
-  //   form.value = {
-  //     trip_id: selectedTrip.value.trip_id,
-  //     mission_num: selectedTrip.value.mission.mission_num,
-  //     transport_name: selectedTrip.value.transport.transport_name,
-  //     is_round_trip: selectedTrip.value.is_round_trip,
-  //     carpooling: selectedTrip.value.carpooling,
-  //     employee: selectedTrip.value.employee,
-  //     departure_city: selectedTrip.value.departure_city,
-  //     departure_country: selectedTrip.value.departure_country,
-  //     destination_city: selectedTrip.value.destination_city,
-  //     destination_country: selectedTrip.value.destination_country,
-  //     carbon_footprint: 3,
-  //   }
-  //   selectedEmployee.value = formatEmployee(selectedTrip.value.employee)
-  //   selectedDepartureCity.value = `${selectedTrip.value.departure_city}, ${selectedTrip.value.departure_country}`;
-  //   selectedDestinationCity.value = `${selectedTrip.value.destination_city}, ${selectedTrip.value.destination_country}`;
-  // }
+  else if (props.operation === 'alter' && (props.trip)) {
+    selectedTrip.value = props.trip;
+    disableQuantity.value = props.disableQuantity;
+    form.value = {
+      trip_id: selectedTrip.value.trip_id,
+      mission_num: selectedTrip.value.mission.mission_num,
+      transport_name: selectedTrip.value.transport.transport_name,
+      is_round_trip: selectedTrip.value.is_round_trip,
+      carpooling: selectedTrip.value.carpooling,
+      employee: selectedTrip.value.employee,
+      departure_city: '',
+      departure_country: '',
+      destination_city: '',
+      destination_country: '',
+      carbon_footprint: null,
+    }
+    alert(JSON.stringify(form.value, null, 2))
+    selectedEmployee.value = formatEmployee(selectedTrip.value.employee)
+    selectedDepartureCity.value = ''
+    selectedDestinationCity.value = ''
+  }
 }
 
 const formatEmployee = (emp) => `${emp.first_name} ${emp.last_name} <${emp.email}>`
@@ -295,9 +296,13 @@ const countryCodeToFlag = (countryIsoCode) => {
   return countryIsoCode.toUpperCase().replace(/./g, c => String.fromCodePoint(c.charCodeAt(0) + 127397))
 }
 
-const formatCity = (city) => {
+const formatCityWithFlag = (city) => {
   const flag = countryCodeToFlag(city.countryCode)
   return `${city.name}, ${city.countryName} ${flag}`
+}
+
+const formatCity = (city) => {
+  return `${city.name}, ${city.countryName}`
 }
 
 const fetchCities = async (cityName) => {
@@ -326,12 +331,12 @@ const onDestinationInput = () => {
 }
 
 const getDepartureCoords = () => {
-  const city = departureCities.value.find(cit => formatCity(cit) === selectedDepartureCity.value)
+  const city = departureCities.value.find(cit => formatCityWithFlag(cit) === selectedDepartureCity.value)
   return city ? [city.lat, city.lng] : null
 }
 
 const getDestinationCoords = () => {
-  const city = destinationCities.value.find(cit => formatCity(cit) === selectedDestinationCity.value)
+  const city = destinationCities.value.find(cit => formatCityWithFlag(cit) === selectedDestinationCity.value)
   return city ? [city.lat, city.lng] : null
 }
 
@@ -378,10 +383,24 @@ const submitForm = async () => {
 
     const access = store.state.accessToken
 
-    const [dep_city_obj, dest_city_obj] = [
-      departureCities.value.find(cit => formatCity(cit) === selectedDepartureCity.value),
-      destinationCities.value.find(cit => formatCity(cit) === selectedDestinationCity.value)
-    ]
+    // const [dep_city_obj, dest_city_obj] = [
+    //   departureCities.value.find(cit => formatCityWithFlag(cit) === selectedDepartureCity.value),
+    //   destinationCities.value.find(cit => formatCityWithFlag(cit) === selectedDestinationCity.value)
+    // ]
+
+    let dep_city_obj, dest_city_obj
+
+    const loadCities = async () => {
+      [dep_city_obj, dest_city_obj] = await Promise.all([
+        fetchCities('Paris'),
+        fetchCities('Lyon')
+      ])
+    }
+
+    await loadCities()
+
+    dep_city_obj = dep_city_obj[0]
+    dest_city_obj = dest_city_obj[0]
 
     const mission = missions.value.find(m => m.mission_num === form.value.mission_num)
     const full_year = new Date(mission.start_date).getFullYear().toString()
@@ -423,12 +442,12 @@ const submitForm = async () => {
 
     } else if (props.operation === 'alter') {
 
-      // await tripsservice.trips.alterTrip(access, { ...form.value });
+      await tripsservice.trips.alterTrip(access, { ...form.value });
 
-      // const response2 = await tripsservice.trips.fetchTrips(access);
-      // store.setItem('trips', response2.trips);
+      const response2 = await tripsservice.trips.fetchTrips(access);
+      store.setItem('trips', response2.trips);
 
-      // alert('Trip updated successfully!');
+      alert('Trip updated successfully!');
     }
 
     setTimeout(() => {

@@ -4,6 +4,7 @@ from tripsservice.serializers.EmployeeSerializer import EmployeeSerializer, Empl
 from tripsservice.serializers.TransportSerializer import TransportSerializer
 from tripsservice.models.TripModel import Trip, Mission
 from tripsservice.models.TransportModel import Transport
+from tripsservice.models.EmployeeModel import Employee
 
 
 class MissionSerializer(serializers.ModelSerializer):
@@ -45,4 +46,19 @@ class TripCreateSerializer(serializers.ModelSerializer):
             'destination_city', 'destination_country', 
             'is_round_trip', 'carpooling', 'carbon_footprint',
             'transport_name', 'mission_num', 'employee'
+        ]
+
+
+class TripAlterSerializer(serializers.ModelSerializer):
+    transport = serializers.PrimaryKeyRelatedField(queryset=Transport.objects.all())
+    mission = serializers.PrimaryKeyRelatedField(queryset=Mission.objects.all())
+    employee = serializers.PrimaryKeyRelatedField(queryset=Employee.objects.all())
+
+    class Meta:
+        model = Trip
+        fields = [
+            'trip_id', 'departure_city', 'departure_country',
+            'destination_city', 'destination_country', 
+            'is_round_trip', 'carpooling', 'carbon_footprint',
+            'transport', 'mission', 'employee'
         ]

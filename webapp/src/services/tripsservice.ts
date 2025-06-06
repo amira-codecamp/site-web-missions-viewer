@@ -1,6 +1,6 @@
 
 import axios from 'axios';
-import { Trip, TripCreate, TripId, Mission } from '@/models/Trip';
+import { Trip, TripCreate, TripAlter, TripId, Mission } from '@/models/Trip';
 
 const API_URL = process.env.VUE_APP_SERVER;
 
@@ -46,7 +46,7 @@ const trips = {
     });
   },
 
-  async alterTrip(token: string, tripData: TripCreate): Promise<Trip> {
+  async alterTrip(token: string, tripData: TripAlter): Promise<Trip> {
     const response = await axios.put<Trip>(
       `${API_URL}/api/trips/`,
       tripData,

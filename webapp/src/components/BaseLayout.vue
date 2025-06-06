@@ -19,6 +19,10 @@ defineOptions({
   name: 'BaseLayout',
 })
 
+import 'bulma-multiselect/css/bulma-multiselect.min.css'
+import 'bulma-tooltip/dist/css/bulma-tooltip.min.css'
+import 'leaflet/dist/leaflet.css'
+
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 </script>
