@@ -239,13 +239,39 @@ const mapRef = ref(null)
 const polylineRef = ref(null)
 const selectedTrip = ref(null)
 const disableQuantity = ref(null)
+const initialBounds = ref(null)
 
 const missions = computed(() => store.state.missions)
 const employees = computed(() => store.state.employees)
 const transports = computed(() => store.state.transports)
 
-const initForm = () => {
-  if (props.operation === 'add') {
+const initForm = async () => {
+  if (props.operation === 'alter' && props.trip) {
+    selectedTrip.value = props.trip;
+    disableQuantity.value = props.disableQuantity;
+    form.value = {
+      trip_id: selectedTrip.value.trip_id,
+      mission_num: selectedTrip.value.mission.mission_num,
+      transport_name: selectedTrip.value.transport.transport_name,
+      is_round_trip: selectedTrip.value.is_round_trip,
+      carpooling: selectedTrip.value.carpooling,
+      employee: selectedTrip.value.employee,
+      departure_city: selectedTrip.value.departure_city,
+      departure_country: selectedTrip.value.departure_country,
+      destination_city: selectedTrip.value.destination_city,
+      destination_country: selectedTrip.value.destination_country,
+      carbon_footprint: null,
+    }
+    selectedEmployee.value = formatEmployee(selectedTrip.value.employee)
+
+    const cities1 = await geonamesservice.fetchCities(selectedTrip.value.departure_city)
+    selectedDepartureCity.value = formatCityWithFlag(cities1[0])
+    departureCities.value = cities1
+
+    const cities2 = await geonamesservice.fetchCities(selectedTrip.value.destination_city)
+    selectedDestinationCity.value = formatCityWithFlag(cities2[0])
+    destinationCities.value = cities2
+  } else {
     form.value = {
       mission_num: '',
       transport_name: '',
@@ -266,27 +292,6 @@ const initForm = () => {
     selectedDepartureCity.value = ''
     selectedDestinationCity.value = ''
   }
-  else if (props.operation === 'alter' && (props.trip)) {
-    selectedTrip.value = props.trip;
-    disableQuantity.value = props.disableQuantity;
-    form.value = {
-      trip_id: selectedTrip.value.trip_id,
-      mission_num: selectedTrip.value.mission.mission_num,
-      transport_name: selectedTrip.value.transport.transport_name,
-      is_round_trip: selectedTrip.value.is_round_trip,
-      carpooling: selectedTrip.value.carpooling,
-      employee: selectedTrip.value.employee,
-      departure_city: '',
-      departure_country: '',
-      destination_city: '',
-      destination_country: '',
-      carbon_footprint: null,
-    }
-    alert(JSON.stringify(form.value, null, 2))
-    selectedEmployee.value = formatEmployee(selectedTrip.value.employee)
-    selectedDepartureCity.value = ''
-    selectedDestinationCity.value = ''
-  }
 }
 
 const formatEmployee = (emp) => `${emp.first_name} ${emp.last_name} <${emp.email}>`
@@ -299,10 +304,6 @@ const countryCodeToFlag = (countryIsoCode) => {
 const formatCityWithFlag = (city) => {
   const flag = countryCodeToFlag(city.countryCode)
   return `${city.name}, ${city.countryName} ${flag}`
-}
-
-const formatCity = (city) => {
-  return `${city.name}, ${city.countryName}`
 }
 
 const fetchCities = async (cityName) => {
@@ -383,24 +384,10 @@ const submitForm = async () => {
 
     const access = store.state.accessToken
 
-    // const [dep_city_obj, dest_city_obj] = [
-    //   departureCities.value.find(cit => formatCityWithFlag(cit) === selectedDepartureCity.value),
-    //   destinationCities.value.find(cit => formatCityWithFlag(cit) === selectedDestinationCity.value)
-    // ]
-
-    let dep_city_obj, dest_city_obj
-
-    const loadCities = async () => {
-      [dep_city_obj, dest_city_obj] = await Promise.all([
-        fetchCities('Paris'),
-        fetchCities('Lyon')
-      ])
-    }
-
-    await loadCities()
-
-    dep_city_obj = dep_city_obj[0]
-    dest_city_obj = dest_city_obj[0]
+    const [dep_city_obj, dest_city_obj] = [
+      departureCities.value.find(cit => formatCityWithFlag(cit) === selectedDepartureCity.value),
+      destinationCities.value.find(cit => formatCityWithFlag(cit) === selectedDestinationCity.value)
+    ]
 
     const mission = missions.value.find(m => m.mission_num === form.value.mission_num)
     const full_year = new Date(mission.start_date).getFullYear().toString()
