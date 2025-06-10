@@ -13,11 +13,24 @@
       </div>
     </div>
 
+    <div class="column is-1"></div>
+
+    <div class="column is-2">
+      <div class="chart-wrapper pie-wrapper">
+        <GenericChart
+          :labels="yearPieChart.labels"
+          :datasets="yearPieChart.datasets"
+          :options="yearPieChart.options"
+          :chartType="'pie'"
+        />
+      </div>
+    </div>
+
     <div class="mb-4 column is-full">
       <span class="has-text-weight-semibold is-size-7">Trips Footprint</span>
     </div>
 
-    <div class="column is-8">
+    <div class="column is-7">
       <div class="chart-wrapper bar-wrapper">
         <GenericChart
           :chartType="'bar'"
@@ -27,6 +40,8 @@
         />
       </div>
     </div>
+
+    <div class="column is-1"></div>
 
     <div class="column is-2">
       <div class="chart-wrapper pie-wrapper">
@@ -67,8 +82,8 @@ defineOptions({
   name: 'TripsCharts',
 })
 
+import { ref, computed, onMounted, watch } from 'vue'
 import { useStore } from '@/store'
-import { computed } from 'vue'
 import GenericChart from '@/components/GenericChart.vue'
 
 const store = useStore()
@@ -78,9 +93,13 @@ const props = defineProps({
     type: Number,
     required: true,
   },
+  trips: {
+    type: Object,
+    required: true,
+  },
 })
 
-const trips = computed(() => store.state.trips)
+const trips = ref(props.trips)
 
 // Charts
 const BORDER_COLOR = 'rgba(88, 80, 141, 1)';
@@ -88,9 +107,14 @@ const BASELINE_LABEL_PREFIX = 'Baseline';
 const BORDER_WIDTH = 1;
 const BAR_TICKNESS = 25;
 
-const getValueColor = (value, baseline = 1000) => {
-  const intensity = Math.min(1, value / baseline);
-  return `rgba(88, 134, 165, ${0.2 + 0.8 * intensity})`;
+// const getValueColor = (value, baseline = 1000) => {
+//   const intensity = Math.min(1, value / baseline);
+//   return `rgba(88, 134, 165, ${0.2 + 0.8 * intensity})`;
+// };
+
+const getValueColor = (rgbStr, value, maxValue) => {
+  const intensity = Math.min(1, value / maxValue);
+  return `${rgbStr}, ${intensity})`;
 };
 
 const createBaselineAnnotation = (baseline, borderColor, labelPrefix) => ({
@@ -115,16 +139,16 @@ const createBaselineAnnotation = (baseline, borderColor, labelPrefix) => ({
   },
 });
 
-const createDatasetItem = ({ label, values, baselineValue }) => ({
+const createDatasetItem = ({ rgbStr, label, values }) => ({
   label,
   data: values,
   borderColor: BORDER_COLOR,
-  backgroundColor: values.map(v => getValueColor(v, baselineValue)),
+  backgroundColor: values.map(v => getValueColor(rgbStr, v, Math.max(...values))),
   borderWidth: BORDER_WIDTH,
   barThickness: BAR_TICKNESS
 });
 
-const createBarOptions = (title, baselineValue, stacked = false) => ({
+const createBarOptions = (title, baselineValue, stacked = false, xticks = []) => ({
   responsive: true,
   plugins: {
     legend: { display: false },
@@ -135,7 +159,7 @@ const createBarOptions = (title, baselineValue, stacked = false) => ({
   },
   scales: {
     x: { 
-      ticks: { display: false },
+      ticks: { display: xticks.length === 0 ? false : true, },
       stacked: stacked,
     },
     y: { 
@@ -153,10 +177,10 @@ const createPieOptions = (title) => ({
   },
 });
 
-const buildBarChartConfig = ({ labels, datasets, title, baselineValue = null, stacked = false }) => ({
+const buildBarChartConfig = ({ labels, datasets, title, baselineValue = null, stacked = false, xticks = [] }) => ({
   labels,
   datasets: datasets,
-  options: createBarOptions(title, baselineValue, stacked),
+  options: createBarOptions(title, baselineValue, stacked, xticks),
 });
 
 const buildPieChartConfig = ({ labels, datasets, title }) => ({
@@ -227,15 +251,23 @@ function missionChartData(trips) {
 const tripPieChart = computed(() => {
   const { labels, values } = tripChartData(trips);
   const datasets = [
-    createDatasetItem({ label: '', values, baselineValue: baseline.value })
+    createDatasetItem({ rgbStr: 'rgba(0, 63, 92', label: '', values })
   ];
   return buildPieChartConfig({ labels, datasets, title: 'Destination City' });
+});
+
+const yearPieChart = computed(() => {
+  const { labels, values } = yearChartData(trips);
+  const datasets = [
+    createDatasetItem({ rgbStr: 'rgba(255, 124, 67', label: '', values })
+  ];
+  return buildPieChartConfig({ labels, datasets, title: 'Travel year' });
 });
 
 const transportPieChart = computed(() => {
   const { labels, values } = transportChartData(trips);
   const datasets = [
-    createDatasetItem({ label: '', values, baselineValue: baseline.value })
+    createDatasetItem({ rgbStr: 'rgba(102, 81, 145', label: '', values })
   ];
   return buildPieChartConfig({ labels, datasets, title: 'Transport Mode' });
 });
@@ -243,7 +275,7 @@ const transportPieChart = computed(() => {
 const missionPieChart = computed(() => {
   const { labels, values } = missionChartData(trips);
   const datasets = [
-    createDatasetItem({ label: '', values, baselineValue: baseline.value })
+    createDatasetItem({ rgbStr: 'rgba(255, 166, 0', label: '', values })
   ];
   return buildPieChartConfig({ labels, datasets, title: 'Travel Reason' });
 });
@@ -252,13 +284,14 @@ const yearBarChart = computed(() => {
   const { labels, values } = yearChartData(trips);
   const datasets = [
     createDatasetItem({
+      rgbStr: 'rgba(212, 80, 135',
       label: '',
-      values: [props.totalCarbonFootprint, ...values],
-      baselineValue: baseline.value
+      values: [props.totalCarbonFootprint, ...values]
     })
   ];
   return buildBarChartConfig({
-    labels: ['Total Footprint', ...labels],
+    xticks: labels,
+    labels: ['Total', ...labels],
     datasets,
     title: 'Footprint By Year',
     baselineValue: baseline.value
@@ -287,9 +320,9 @@ const TripBarChart = computed(() => {
 
   const datasets = datasetValues.map((data, i) => {
     return createDatasetItem({
+      rgbStr: 'rgba(249, 93, 106',
       label: i >= 2 ? transportLabels[transportValues.indexOf(data[data.length - 1])] : '',
-      values: data,
-      baselineValue: baseline.value
+      values: data
     });
   });
 
@@ -301,6 +334,10 @@ const TripBarChart = computed(() => {
     stacked: true
   });
 });
+
+watch(() => props.trips, (newVal) => {
+  trips.value = newVal
+})
 </script>
 
 <style scoped>

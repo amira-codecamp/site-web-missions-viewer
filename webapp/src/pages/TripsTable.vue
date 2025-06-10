@@ -131,7 +131,15 @@ const showAlterTripForm = ref(false)
 const selectedTrip = ref(null)
 
 const isManager = computed(() => store.state.isManager)
-const trips = computed(() => store.state.trips)
+
+const props = defineProps({
+  trips: {
+    type: Object,
+    required: true,
+  },
+})
+
+const trips = ref(props.trips)
 
 // Table
 function normalizeString(str) {
