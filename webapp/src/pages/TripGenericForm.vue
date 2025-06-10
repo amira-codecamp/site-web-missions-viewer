@@ -113,13 +113,13 @@
                             <div class="control">
                                 <input
                                 class="input"
-                                list="depcities-list"
+                                :list="list1Name"
                                 v-model="selectedDepartureCity"
                                 placeholder="Type departure city"
                                 @input="onDepartureInput"
                                 required
                                 />
-                                <datalist id="depcities-list">
+                                <datalist :id="list1Name">
                                     <option
                                         v-for="city in departureCities"
                                         :key="city.geonameId"
@@ -137,13 +137,13 @@
                             <div class="control">
                                 <input
                                 class="input"
-                                list="descities-list"
+                                :list="list2Name"
                                 v-model="selectedDestinationCity"
                                 placeholder="Type destination city"
                                 @input="onDestinationInput"
                                 required
                                 />
-                                <datalist id="descities-list">
+                                <datalist :id="list2Name">
                                     <option
                                         v-for="city in destinationCities"
                                         :key="city.geonameId"
@@ -197,7 +197,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { useStore } from '@/store'
 import debounce from 'lodash.debounce'
 import { LMap, LTileLayer, LMarker, LPolyline } from '@vue-leaflet/vue-leaflet'
@@ -217,12 +217,25 @@ const props = defineProps({
     required: true
   },
   disableQuantity: {
+    type: Boolean,
+    required: true
+  },
+  list1Name: {
+    type: String,
+    required: true
+  },
+  list2Name: {
     type: String,
     required: true
   },
 })
 
 const form = ref({ ...props.initialForm })
+
+const disableQuantity = ref(props.disableQuantity)
+
+const list1Name = ref(props.list1Name)
+const list2Name = ref(props.list2Name)
 
 const departureCities = ref([])
 const destinationCities = ref([])
@@ -237,6 +250,8 @@ const transports = computed(() => store.state.transports)
 
 const formatEmployee = (emp) => `${emp.first_name} ${emp.last_name} <${emp.email}>`
 
+const selectedEmployee = ref(formatEmployee(props.initialForm.employee));
+
 const countryCodeToFlag = (countryIsoCode) => {
   if (!countryIsoCode || typeof countryIsoCode !== 'string') return ''
   return countryIsoCode.toUpperCase().replace(/./g, c => String.fromCodePoint(c.charCodeAt(0) + 127397))
@@ -247,16 +262,13 @@ const formatCityWithFlag = (city) => {
   return `${city.name}, ${city.countryName} ${flag}`
 }
 
-const selectedEmployee = ref(formatEmployee(props.initialForm.employee));
-
-const selectedDepartureCity = ref('');
-
-const selectedDestinationCity = ref('');
-
 const fetchCities = async (cityName) => {
   const response = await geonamesservice.fetchCities(cityName)
   return response
 }
+
+const selectedDepartureCity = ref('');
+const selectedDestinationCity = ref('');
 
 const callGeoName = debounce(async (cityName, targetKey) => {
   if (cityName.length >= 2) {
@@ -364,4 +376,22 @@ const onSubmit = async () => {
 }
 
 watch([selectedDepartureCity, selectedDestinationCity], fitBoundsMap)
+
+onMounted(async () => {
+  if (props.initialForm.departure_city) {
+    const cities = await fetchCities(props.initialForm.departure_city);
+    if (cities.length > 0) {
+      departureCities.value = cities;
+      selectedDepartureCity.value = formatCityWithFlag(cities[0]);
+    }
+  }
+
+  if (props.initialForm.destination_city) {
+    const cities = await fetchCities(props.initialForm.destination_city);
+    if (cities.length > 0) {
+      destinationCities.value = cities;
+      selectedDestinationCity.value = formatCityWithFlag(cities[0]);
+    }
+  }
+});
 </script>

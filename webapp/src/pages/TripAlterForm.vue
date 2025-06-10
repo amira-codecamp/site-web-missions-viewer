@@ -1,7 +1,7 @@
 
 <template>
     <div class="box has-background-white-bis">
-        <TripGenericForm :disableQuantity="True" :initialForm="form" @submit="submitForm" v-if="isFormReady" />
+        <TripGenericForm :disableQuantity="true" :initialForm="form" @submit="submitForm" v-if="isFormReady" :list1Name="'depcities_listalter'" :list2Name="'destcities_listalter'"/>
     </div>
 </template>
 
