@@ -1,0 +1,120 @@
+
+<template>
+    <div class="box has-background-white-bis">
+        <TripGenericForm :disableQuantity="True" :initialForm="form" @submit="submitForm" v-if="isFormReady" />
+    </div>
+</template>
+
+<script setup>
+
+import { ref, onMounted, watch } from 'vue'
+import { useStore } from '@/store'
+
+import TripGenericForm from '@/pages/TripGenericForm.vue'
+
+import tripsservice from '@/services/tripsservice'
+import authservice from '@/services/authservice'
+
+const store = useStore()
+
+const props = defineProps({
+  trip: {
+    type: Object,
+    required: true,
+  },
+})
+
+const isFormReady = ref(false)
+
+const form = ref({
+    mission_num: '',
+    transport_name: '',
+    employee: {
+      first_name: '',
+      last_name: '',
+      email: '',
+    },
+    departure_city: '',
+    departure_country: '',
+    destination_city: '',
+    destination_country: '',
+    is_round_trip: false,
+    carpooling: 1,
+    carbon_footprint: null,
+})
+
+const initializeForm = async () => {
+
+    if (props.trip) {
+        const trip = props.trip
+
+        form.value.trip_id = trip.trip_id
+        form.value.mission_num = trip.mission.mission_num
+        form.value.transport_name = trip.transport.transport_name
+        form.value.is_round_trip = trip.is_round_trip
+        form.value.carpooling = trip.carpooling
+        form.value.employee = trip.employee
+        form.value.departure_city = trip.departure_city
+        form.value.departure_country = trip.departure_country
+        form.value.destination_city = trip.destination_city
+        form.value.destination_country = trip.destination_country
+
+        isFormReady.value = true
+    }
+}
+
+const submitForm = async (formData, numRows) => {
+  try {
+
+    try {
+        const refresh = store.state.refreshToken
+        const responsetok = await authservice.refresh(refresh)
+        store.setItem("accessToken", responsetok.access)
+
+    } catch (error) {
+        alert("Session expired. Please login again.")
+
+        store.clearItem('trips')
+        store.clearItem('employees')
+        store.clearItem('transports')
+        store.clearItem('missions')
+        store.clearItem('isManager')
+        store.clearItem('user')
+        store.clearItem('accessToken')
+        store.clearItem('refreshToken')
+
+        window.location.href = '/login'
+        return
+    }
+
+    const access = store.state.accessToken
+
+    await tripsservice.trips.alterTrip(access, { ...formData });
+
+    const response = await tripsservice.trips.fetchTrips(access);
+    store.setItem('trips', response.trips);
+
+    alert('Trip updated successfully!');
+
+    setTimeout(() => {}, 1000)
+
+  } catch (error) {
+    if (error.response?.data) {
+      const messages = Object.entries(error.response.data).map(([key, val]) => `${key}: ${val}`)
+      alert(messages.join('\n'))
+    } else {
+      alert('Something went wrong. Please try again.')
+    }
+  }
+}
+
+onMounted(() => {
+  initializeForm()
+})
+
+watch(() => props.trip, () => {
+  isFormReady.value = false
+  initializeForm()
+})
+
+</script>

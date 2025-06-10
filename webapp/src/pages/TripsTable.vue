@@ -86,10 +86,7 @@
           <button class="delete" aria-label="close" @click="hideAddForm"></button>
       </header>
       <section class="modal-card-body has-background-light">
-          <TripForm
-          :operation="'add'"
-          :trip="null" 
-          :disableQuantity="'false'"
+          <TripAddForm
           @close="hideAddForm" />
       </section>
       </div>
@@ -103,10 +100,8 @@
           <button class="delete" aria-label="close" @click="hideAlterForm"></button>
       </header>
       <section class="modal-card-body has-background-light">
-          <TripForm
-          :operation="'alter'"
+          <TripAlterForm
           :trip="selectedTrip"
-          :disableQuantity="'true'"
           @close="hideAlterForm" />
       </section>
       </div>
@@ -123,9 +118,11 @@ import authservice from '@/services/authservice'
 
 import { useStore } from '@/store'
 import { ref, computed } from 'vue'
-import TripForm from '@/pages/TripForm.vue'
 import * as XLSX from 'xlsx'
 import { saveAs } from 'file-saver'
+
+import TripAddForm from '@/pages/TripAddForm.vue'
+import TripAlterForm from '@/pages/TripAlterForm.vue'
 
 const store = useStore()
 const search = ref('')
@@ -187,7 +184,7 @@ function exportToXLSX() {
   saveAs(blob, 'trips_export.xlsx')
 }
 
-// Add-Alter-Delete Trip
+// Operations on Trip
 const fetchToken = async () => {
   try {
     const refresh = store.state.refreshToken;
