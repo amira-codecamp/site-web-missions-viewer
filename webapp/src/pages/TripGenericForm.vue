@@ -17,10 +17,12 @@
                         />
                         <datalist id="missions-list">
                             <option
-                                v-for="mission in missions"
-                                :key="mission.mission_num"
-                                :value="mission.mission_num"
-                            />
+                              v-for="mission in missions"
+                              :key="mission.mission_num"
+                              :value="mission.mission_num"
+                            >
+                              {{ mission.mission_desc }} (from {{ mission.start_date }} to {{ mission.end_date }})
+                            </option>
                         </datalist>
                     </div>
                 </div>
@@ -250,7 +252,11 @@ const transports = computed(() => store.state.transports)
 
 const formatEmployee = (emp) => `${emp.first_name} ${emp.last_name} <${emp.email}>`
 
-const selectedEmployee = ref(formatEmployee(props.initialForm.employee));
+const selectedEmployee = ref(
+  props.initialForm.employee && (props.initialForm.employee.first_name || props.initialForm.employee.last_name || props.initialForm.employee.email)
+    ? formatEmployee(props.initialForm.employee)
+    : ''
+);
 
 const countryCodeToFlag = (countryIsoCode) => {
   if (!countryIsoCode || typeof countryIsoCode !== 'string') return ''

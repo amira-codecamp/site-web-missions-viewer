@@ -1,9 +1,6 @@
 
 <template>
   <div class="table-wrapper">
-      <div class="mb-4">
-          <span class="has-text-weight-semibold is-size-7">Trips List</span>
-      </div>
 
       <div class="columns">
           <div class="column is-7">
@@ -43,7 +40,7 @@
           <tbody>
               <tr v-for="trip in filteredTrips" :key="trip.trip_id">
               <td>{{ trip.mission.start_date }} → {{ trip.mission.end_date }}</td>
-              <td>{{ trip.mission.mission_desc }}</td>
+              <td>{{ trip.mission.mission_num }}/ {{ trip.mission.mission_desc }}</td>
               <td>{{ trip.departure_city }}, {{ trip.departure_country }}</td>
               <td>{{ trip.destination_city }}, {{ trip.destination_country }}</td>
               <td>{{ trip.transport.transport_name }}</td>

@@ -2,7 +2,20 @@
 <template>
   <div class="columns is-multiline is-gapless">
 
-    <div class="column is-7">
+    <div class="column is-5">
+      <div class="chart-wrapper bar-wrapper">
+        <GenericChart
+          :chartType="'bar'"
+          :labels="TripBarChart.labels"
+          :datasets="TripBarChart.datasets"
+          :options="TripBarChart.options"
+        />
+      </div>
+    </div>
+
+    <div class="column is-1"></div>
+
+    <div class="column is-5">
       <div class="chart-wrapper bar-wrapper">
         <GenericChart
           :chartType="'bar'"
@@ -18,46 +31,9 @@
     <div class="column is-2">
       <div class="chart-wrapper pie-wrapper">
         <GenericChart
-          :labels="yearPieChart.labels"
-          :datasets="yearPieChart.datasets"
-          :options="yearPieChart.options"
-          :chartType="'pie'"
-        />
-      </div>
-    </div>
-
-    <div class="mb-4 column is-full">
-      <span class="has-text-weight-semibold is-size-7">Trips Footprint</span>
-    </div>
-
-    <div class="column is-7">
-      <div class="chart-wrapper bar-wrapper">
-        <GenericChart
-          :chartType="'bar'"
-          :labels="TripBarChart.labels"
-          :datasets="TripBarChart.datasets"
-          :options="TripBarChart.options"
-        />
-      </div>
-    </div>
-
-    <div class="column is-1"></div>
-
-    <div class="column is-2">
-      <div class="chart-wrapper pie-wrapper">
-        <GenericChart
           :labels="tripPieChart.labels"
           :datasets="tripPieChart.datasets"
           :options="tripPieChart.options"
-          :chartType="'pie'"
-        />
-      </div>
-
-      <div class="chart-wrapper pie-wrapper">
-        <GenericChart
-          :labels="missionPieChart.labels"
-          :datasets="missionPieChart.datasets"
-          :options="missionPieChart.options"
           :chartType="'pie'"
         />
       </div>
@@ -74,6 +50,56 @@
       </div>
     </div>
 
+    <div class="column is-2">
+      <div class="chart-wrapper pie-wrapper">
+        <GenericChart
+          :labels="yearPieChart.labels"
+          :datasets="yearPieChart.datasets"
+          :options="yearPieChart.options"
+          :chartType="'pie'"
+        />
+      </div>
+    </div>
+
+    <div class="column is-2">
+      <div class="chart-wrapper pie-wrapper">
+        <GenericChart
+          :labels="missionPieChart.labels"
+          :datasets="missionPieChart.datasets"
+          :options="missionPieChart.options"
+          :chartType="'pie'"
+        />
+      </div>
+    </div>
+
+    <div class="column is-2" v-if="isManager">
+      <div class="chart-wrapper pie-wrapper">
+        <GenericChart
+          :labels="employeePieChart.labels"
+          :datasets="employeePieChart.datasets"
+          :options="employeePieChart.options"
+          :chartType="'pie'"
+        />
+      </div>
+    </div>
+
+     <div class="column is-2">
+      <div class="chart-wrapper pie-wrapper">
+        <GenericChart
+          :labels="statusPieChart.labels"
+          :datasets="statusPieChart.datasets"
+          :options="statusPieChart.options"
+          :chartType="'pie'"
+        />
+      </div>
+    </div>
+
+    <!-- <div class="mb-4 column is-full">
+      <span class="has-text-weight-semibold is-size-7">Trips Footprint</span>
+    </div> -->
+
+    <!-- <div class="column is-1"></div> -->
+
   </div>
 </template>
 
@@ -88,6 +114,8 @@ import GenericChart from '@/components/GenericChart.vue'
 
 const store = useStore()
 
+const isManager = computed(() => store.state.isManager)
+
 const props = defineProps({
   totalCarbonFootprint: {
     type: Number,
@@ -101,41 +129,63 @@ const props = defineProps({
 
 const trips = ref(props.trips)
 
+const baseline = ref(0)
+
 // Charts
-const BORDER_COLOR = 'rgba(88, 80, 141, 1)';
-const BASELINE_LABEL_PREFIX = 'Baseline';
+const BORDER_COLOR = 'rgba(54, 54, 54, 0.8)';
 const BORDER_WIDTH = 1;
 const BAR_TICKNESS = 25;
 
-// const getValueColor = (value, baseline = 1000) => {
-//   const intensity = Math.min(1, value / baseline);
-//   return `rgba(88, 134, 165, ${0.2 + 0.8 * intensity})`;
-// };
+const COLORS = [
+  'rgba(160, 122, 176',
+  'rgba(140, 160, 150',
+  'rgba(141, 169, 196',
+  'rgba(210, 180, 120',
+  'rgba(1, 120, 176',
+  'rgba(1, 120, 176',
+  'rgba(141, 169, 196',
+  'rgba(125, 140, 180',
+];
 
 const getValueColor = (rgbStr, value, maxValue) => {
   const intensity = Math.min(1, value / maxValue);
   return `${rgbStr}, ${intensity})`;
 };
 
-const createBaselineAnnotation = (baseline, borderColor, labelPrefix) => ({
+const createBaselineAnnotation = (baseline, annotType, annotLabel, borderColor, xValue = null) => ({
   drawTime: 'afterDatasetsDraw',
   annotations: {
-    baselineLine: {
-      type: 'line',
-      yMin: baseline,
-      yMax: baseline,
-      borderColor,
-      borderWidth: 2,
-      borderDash: [6, 6],
-      label: {
-        display: true,
-        content: `${labelPrefix} ${baseline}`,
-        position: 'start',
+    baselineAnnotation: annotType === 'label'
+      ? {
+        type: annotType,
+        xValue: xValue ?? 0,
+        yValue: baseline + 200,
         backgroundColor: 'white',
+        borderColor: borderColor,
+        borderWidth: 0,
+        content: `${annotLabel} ${baseline}`,
+        font: { weight: 'bold', size: 12 },
         color: borderColor,
-        font: { weight: 'bold' },
-      },
-    },
+        position: 'start',
+        padding: 4,
+        cornerRadius: 4,
+      }
+      : {
+          type: annotType,
+          yMin: baseline,
+          yMax: baseline,
+          borderColor,
+          borderWidth: 2,
+          borderDash: [6, 6],
+          label: {
+            display: true,
+            content: `${annotLabel} ${baseline}`,
+            position: 'start',
+            backgroundColor: 'white',
+            color: borderColor,
+            font: { weight: 'bold' },
+          },
+        },
   },
 });
 
@@ -148,13 +198,13 @@ const createDatasetItem = ({ rgbStr, label, values }) => ({
   barThickness: BAR_TICKNESS
 });
 
-const createBarOptions = (title, baselineValue, stacked = false, xticks = []) => ({
+const createBarOptions = (title, baselineValue, annotType, stacked = false, xticks = [], annotLabel) => ({
   responsive: true,
   plugins: {
     legend: { display: false },
-    title: { display: true, text: title },
+    title: { display: true, text: title, color: '#363636' },
     annotation: baselineValue !== null
-      ? createBaselineAnnotation(baselineValue, BORDER_COLOR, BASELINE_LABEL_PREFIX)
+      ? createBaselineAnnotation(baselineValue, annotType, annotLabel, BORDER_COLOR)
       : undefined,
   },
   scales: {
@@ -173,14 +223,14 @@ const createPieOptions = (title) => ({
   responsive: true,
   plugins: {
     legend: { display: false },
-    title: { display: true, text: title },
+    title: { display: true, text: title, color: '#363636' },
   },
 });
 
-const buildBarChartConfig = ({ labels, datasets, title, baselineValue = null, stacked = false, xticks = [] }) => ({
+const buildBarChartConfig = ({ labels, datasets, title, baselineValue = null, annotType = 'line', stacked = false, xticks = [], annotLabel = '' }) => ({
   labels,
   datasets: datasets,
-  options: createBarOptions(title, baselineValue, stacked, xticks),
+  options: createBarOptions(title, baselineValue, annotType, stacked, xticks, annotLabel),
 });
 
 const buildPieChartConfig = ({ labels, datasets, title }) => ({
@@ -189,26 +239,24 @@ const buildPieChartConfig = ({ labels, datasets, title }) => ({
   options: createPieOptions(title),
 });
 
-const baseline = computed(() => {
+const computeBaseline = (tripsData) => {
   // baseline: 1-tonne CO2 per person per year
-  const dates = trips.value
+  const dates = tripsData
     .map(trip => trip.mission?.start_date)
-    .filter(Boolean)
+    .filter(dateStr => !!dateStr)
     .map(dateStr => new Date(dateStr));
 
-  if (dates.length === 0) return 1000;
-
   const minDate = new Date(Math.min(...dates.map(d => d.getTime())));
-  const now = new Date();
+  const maxDate = new Date(Math.max(...dates.map(d => d.getTime())));
 
-  const yearsDiff = now.getFullYear() - minDate.getFullYear();
-  const monthsDiff = now.getMonth() - minDate.getMonth();
+  const yearsDiff = maxDate.getFullYear() - minDate.getFullYear();
+  const monthsDiff = maxDate.getMonth() - minDate.getMonth();
 
   const totalMonths = yearsDiff * 12 + monthsDiff + 1;
   const baselinePerMonth = 1000 / 12;
 
   return Math.round(totalMonths * baselinePerMonth);
-});
+};
 
 function aggregateByKey(trips, keyFn) {
   const carbonByKey = {};
@@ -248,53 +296,85 @@ function missionChartData(trips) {
   return aggregateByKey(trips, trip => trip.mission?.mission_desc || '');
 }
 
+function employeeChartData(trips) {
+  return aggregateByKey(trips, trip => {
+    const firstname = `${trip.employee.first_name || ''}`;
+    const lastname = `${trip.employee.last_name || ''}`;
+    return `${firstname} ${lastname}`;
+  });
+}
+
+function statusChartData(trips) {
+  return aggregateByKey(trips, trip => trip.employee?.status?.status_name || '');
+}
+
+const statusPieChart = computed(() => {
+  const { labels, values } = statusChartData(trips);
+  const datasets = [
+    createDatasetItem({ rgbStr: COLORS[6], label: '', values })
+  ];
+  return buildPieChartConfig({ labels, datasets, title: 'Status' });
+});
+
+const employeePieChart = computed(() => {
+  const { labels, values } = employeeChartData(trips);
+  const datasets = [
+    createDatasetItem({ rgbStr: COLORS[7], label: '', values })
+  ];
+  return buildPieChartConfig({ labels, datasets, title: 'by Employee' });
+});
+
 const tripPieChart = computed(() => {
   const { labels, values } = tripChartData(trips);
   const datasets = [
-    createDatasetItem({ rgbStr: 'rgba(0, 63, 92', label: '', values })
+    createDatasetItem({ rgbStr: COLORS[0], label: '', values })
   ];
-  return buildPieChartConfig({ labels, datasets, title: 'Destination City' });
+  return buildPieChartConfig({ labels, datasets, title: 'Trip' });
 });
 
 const yearPieChart = computed(() => {
   const { labels, values } = yearChartData(trips);
   const datasets = [
-    createDatasetItem({ rgbStr: 'rgba(255, 124, 67', label: '', values })
+    createDatasetItem({ rgbStr: COLORS[1], label: '', values })
   ];
-  return buildPieChartConfig({ labels, datasets, title: 'Travel year' });
+  return buildPieChartConfig({ labels, datasets, title: 'per Year' });
 });
 
 const transportPieChart = computed(() => {
   const { labels, values } = transportChartData(trips);
   const datasets = [
-    createDatasetItem({ rgbStr: 'rgba(102, 81, 145', label: '', values })
+    createDatasetItem({ rgbStr: COLORS[2], label: '', values })
   ];
-  return buildPieChartConfig({ labels, datasets, title: 'Transport Mode' });
+  return buildPieChartConfig({ labels, datasets, title: 'Transport' });
 });
 
 const missionPieChart = computed(() => {
   const { labels, values } = missionChartData(trips);
   const datasets = [
-    createDatasetItem({ rgbStr: 'rgba(255, 166, 0', label: '', values })
+    createDatasetItem({ rgbStr: COLORS[3], label: '', values })
   ];
-  return buildPieChartConfig({ labels, datasets, title: 'Travel Reason' });
+  return buildPieChartConfig({ labels, datasets, title: 'Mission' });
 });
 
 const yearBarChart = computed(() => {
   const { labels, values } = yearChartData(trips);
   const datasets = [
     createDatasetItem({
-      rgbStr: 'rgba(212, 80, 135',
+      rgbStr: COLORS[4],
       label: '',
-      values: [props.totalCarbonFootprint, ...values]
+      // values: [props.totalCarbonFootprint, ...values]
+      values: values
     })
   ];
   return buildBarChartConfig({
     xticks: labels,
-    labels: ['Total', ...labels],
+    // labels: ['Total', ...labels],
+    labels: labels,
     datasets,
-    title: 'Footprint By Year',
-    baselineValue: baseline.value
+    title: 'per Year',
+    baselineValue: 1000,
+    annotType: 'line',
+    annotLabel: 'baseline:'
   });
 });
 
@@ -320,24 +400,31 @@ const TripBarChart = computed(() => {
 
   const datasets = datasetValues.map((data, i) => {
     return createDatasetItem({
-      rgbStr: 'rgba(249, 93, 106',
+      rgbStr: COLORS[5],
       label: i >= 2 ? transportLabels[transportValues.indexOf(data[data.length - 1])] : '',
       values: data
     });
   });
 
   return buildBarChartConfig({
-    labels: ['Total Footprint', ...tripLabels, 'Transport'],
+    labels: ['Total', ...tripLabels, 'Transport'],
     datasets,
-    title: '',
+    title: 'Carbon Footprint',
     baselineValue: baseline.value,
-    stacked: true
+    annotType: 'label',
+    stacked: true,
+    annotLabel: 'recommended:'
   });
 });
 
-watch(() => props.trips, (newVal) => {
-  trips.value = newVal
-})
+watch(
+  () => props.trips,
+  (newVal) => {
+    trips.value = newVal;
+    baseline.value = computeBaseline(newVal);
+  },
+  { immediate: true }
+);
 </script>
 
 <style scoped>
@@ -347,17 +434,12 @@ watch(() => props.trips, (newVal) => {
 }
 
 .pie-wrapper{
-  height: 15rem !important;
+  height: 10rem !important;
+  width: 80% !important;
 }
 
 .bar-wrapper{
-  height: 25rem !important;
+  height: 20rem !important;
 }
 
-.column {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important; 
-  margin-bottom: 0 !important; 
-  margin-top: 0 !important; 
-}
 </style>

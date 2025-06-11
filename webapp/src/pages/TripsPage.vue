@@ -3,11 +3,14 @@
   <section class="section">
     <div class="container">
 
-      <div class="mb-4">
-        <span class="has-text-weight-semibold is-size-6">Carbon Footprint : {{ totalCarbonFootprint }} kg CO2</span>
-      </div>
-
       <div class="columns">
+
+        <div class="column is-3">
+          <span class="has-text-weight-semibold is-size-6">Total Footprint (kg CO2): {{ totalCarbonFootprint }} </span>
+        </div>
+
+        <div class="column is-4"></div>
+
         <div class="column is-2">
           <input
           class="input"
@@ -36,14 +39,24 @@
             <option v-for="year in endYears" :key="year" :value="year" />
           </datalist>
         </div>
-        <div class="column is-2">
+
+        <div class="column is-1">
           <button class="button is-dark is-small" @click="filterTripsByYear">
             <span>Change</span>
           </button>
         </div>
+
+      </div>
+
+      <div class="mb-4">
+          <span class="has-text-weight-semibold is-size-7">Trips Charts</span>
       </div>
 
       <TripsCharts :totalCarbonFootprint="totalCarbonFootprint" :trips="trips" :key="chartsKey" />
+
+      <div class="mb-4">
+          <span class="has-text-weight-semibold is-size-7">Trips Table</span>
+      </div>
 
       <TripsTable :trips="trips" :key="tableKey" />
 
@@ -126,6 +139,14 @@ watch(trips, () => {
   chartsKey.value++;
   tableKey.value++;
 })
+
+watch(
+  () => store.state.trips,
+  (newTrips) => {
+    trips.value = newTrips
+  },
+  { immediate: true, deep: true }
+)
 
 onMounted(() => {
   document.title = 'Trips | LIPN-carbon'
