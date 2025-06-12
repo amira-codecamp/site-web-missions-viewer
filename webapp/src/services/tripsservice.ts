@@ -75,6 +75,19 @@ const missions = {
     );
     return response.data;
   },
+  async createMission(token: string, mission: Mission): Promise<Mission> {
+    const response = await axios.post<Mission>(
+      `${API_URL}/api/missions/`,
+      mission,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data;
+  },
 };
 
 export default { trips, missions };

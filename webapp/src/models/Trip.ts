@@ -3,7 +3,7 @@ import { Transport } from '@/models/Transport'
 import { EmployeeWithStatus, Employee } from '@/models/Employee'
 
 export interface Mission {
-    mission_num: number,
+    mission_num: string,
     start_date: string;
     end_date: string;
     mission_desc: string;

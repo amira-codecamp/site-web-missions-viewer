@@ -12,6 +12,7 @@ from tripsservice.views.TripPermission import (
     IsViewAllTripPermission,
     IsAddTripPermission,
     IsViewAllMissionPermission,
+    IsAddMissionPermission,
     IsDeleteTripPermission,
     IsModifyTripPermission,
 )
@@ -114,3 +115,16 @@ class MissionView(APIView):
         return Response({
             "missions": MissionSerializer(missions, many=True).data,
         })
+    
+    def post(self, request):
+        if IsAddMissionPermission().has_permission(request, self):
+            serializer = MissionSerializer(data=request.data)
+            if serializer.is_valid():
+                validated_data = serializer.validated_data
+                mission = Mission.objects.create(
+                    **validated_data
+                )
+                return Response(MissionSerializer(mission).data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)

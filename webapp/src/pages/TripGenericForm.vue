@@ -6,25 +6,45 @@
             <div class="column is-5">
                 <!-- Mission -->
                 <div class="field mb-5">
-                    <label class="label has-text-weight-medium has-text-grey-dark">Mission</label>
-                    <div class="control">
-                        <input
-                        class="input"
-                        list="missions-list"
-                        v-model="form.mission_num"
-                        placeholder="Type mission"
-                        required
-                        />
-                        <datalist id="missions-list">
-                            <option
-                              v-for="mission in missions"
-                              :key="mission.mission_num"
-                              :value="mission.mission_num"
-                            >
-                              {{ mission.mission_desc }} (from {{ mission.start_date }} to {{ mission.end_date }})
-                            </option>
-                        </datalist>
+                  <label class="label has-text-weight-medium has-text-grey-dark">Mission</label>
+                  <div class="columns" style="display: flex; align-items: center; justify-content: center; height: 100%;">
+                    <div class="column is-8">
+                      <div class="control">
+                          <input
+                          class="input"
+                          list="missions-list"
+                          v-model="form.mission_num"
+                          placeholder="Type mission"
+                          required
+                          />
+                          <datalist id="missions-list">
+                              <option
+                                v-for="mission in missions"
+                                :key="mission.mission_num"
+                                :value="mission.mission_num"
+                              >
+                                {{ mission.mission_desc }} (from {{ mission.start_date }} to {{ mission.end_date }})
+                              </option>
+                          </datalist>
+                      </div>
                     </div>
+                    <div class="column is-2">
+                      <button class="button is-dark is-small" v-if="isManager" @click="showMissionForm()"><span>Add</span></button>
+                      <div class="modal" :class="{ 'is-active': MissionFormActive }" style="z-index: 2000;">
+                        <div class="modal-background" @click="hideMissionForm"></div>
+                        <div class="modal-card" style="width: 30%; z-index: 2001;">
+                          <header class="modal-card-head has-background-white">
+                            <p class="modal-card-title has-text-grey-dark">Add a New Mission</p>
+                            <button class="delete" aria-label="close" @click="hideMissionForm"></button>
+                          </header>
+                          <section class="modal-card-body has-background-light">
+                            <MissionForm @close="hideMissionForm" />
+                          </section>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="column is-2"></div>
+                  </div>
                 </div>
 
                 <!-- Transport -->
@@ -206,12 +226,16 @@ import { LMap, LTileLayer, LMarker, LPolyline } from '@vue-leaflet/vue-leaflet'
 import authservice from '@/services/authservice'
 import geonamesservice from '@/services/geonamesservice'
 import emissionsservice from '@/services/emissionsservice'
+import MissionForm from '@/pages/MissionForm.vue'
+
 
 defineOptions({ name: 'TripGenericForm' })
 
 const emit = defineEmits(['submit'])
 
 const store = useStore()
+
+const isManager = computed(() => store.state.isManager)
 
 const props = defineProps({
   initialForm: {
@@ -321,6 +345,16 @@ const fitBoundsMap = async () => {
   } else {
     console.warn('Map or polyline not found')
   }
+}
+
+const MissionFormActive = ref(false)
+
+function showMissionForm() {
+  MissionFormActive.value = true
+}
+
+function hideMissionForm() {
+  MissionFormActive.value = false
 }
 
 const onSubmit = async () => {

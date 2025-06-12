@@ -30,3 +30,7 @@ class IsModifyTripPermission(BasePermission):
 class IsViewAllMissionPermission(BasePermission):
     def has_permission(self, request, view):
         return request.user.has_perm('view_all_mission')
+    
+class IsAddMissionPermission(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.has_perm('add_mission')
