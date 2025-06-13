@@ -29,6 +29,7 @@ import Footer from '@/components/Footer'
 
 <style lang="scss">
 @import "~bulma/bulma";
+@import "~@fortawesome/fontawesome-free/css/all.css";
 
 .page {
   display: flex;

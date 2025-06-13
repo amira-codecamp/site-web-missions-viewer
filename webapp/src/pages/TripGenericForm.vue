@@ -23,7 +23,7 @@
                                 :key="mission.mission_num"
                                 :value="mission.mission_num"
                               >
-                                {{ mission.mission_desc }} (from {{ mission.start_date }} to {{ mission.end_date }})
+                                From {{ mission.start_date }} To {{ mission.end_date }} | {{ mission.mission_desc }}
                               </option>
                           </datalist>
                       </div>

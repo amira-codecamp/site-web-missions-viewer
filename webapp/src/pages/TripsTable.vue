@@ -3,7 +3,7 @@
   <div class="table-wrapper">
 
       <div class="columns">
-          <div class="column is-7">
+          <div class="column is-half">
           <input
               v-model="search"
               class="input is-small"
@@ -11,17 +11,27 @@
               placeholder="Search trips..."
           />
           </div>
-          <div class="column is-3"></div>
-          <div class="column is-1">
-          <button class="button is-dark is-fullwidth is-small" v-if="isManager" @click="showAddForm">Add</button>
-          </div>
-          <div class="column is-1">
-          <button class="button is-dark is-fullwidth is-small" @click="exportToXLSX">Export</button>
+          <div class="column is-one-quarter"></div>
+          <div class="column is-one-quarter">
+            <div class="columns">
+              <div class="column is-three-third"></div>
+              <div class="column is-one-third">
+                <button 
+                  class="button is-dark is-fullwidth is-small" 
+                  v-if="isManager" 
+                  @click="showAddForm"
+                  style="font-weight: bold;"
+                  title="Add trip"
+                >
+                  <span>Create Trip</span>
+                </button>
+              </div>
+            </div>
           </div>
       </div>
 
       <div class="table-content is-scrollable">
-          <table class="table is-fullwidth is-hoverable is-striped is-size-7">
+          <table class="table is-fullwidth is-hoverable is-bordered is-size-7">
           <thead>
               <tr>
               <th>Dates</th>
@@ -30,11 +40,17 @@
               <th>Destination</th>
               <th>Transport</th>
               <th>Carpoolers</th>
-              <th>Round Trip</th>
+              <th>IsRound</th>
               <th>Footprint</th>
               <th>Employee</th>
-              <th></th>
-              <th></th>
+              <th colspan="2">
+                <button class="button is-secondary is-small" @click="exportToXLSX">
+                  <span class="icon is-small">
+                    <i class="fas fa-file-export"></i>
+                  </span>
+                  <span>Export</span>
+                </button>
+              </th>
               </tr>
           </thead>
           <tbody>
@@ -49,27 +65,32 @@
               <td class="has-text-weight-semibold">{{ trip.carbon_footprint }} kg CO2</td>
               <td>{{ trip.employee.first_name }} {{ trip.employee.last_name }}</td>
               <td>
-                  <button 
-                  class="button is-info is-light is-small" 
+                <button 
+                  class="button is-link is-light is-small" 
                   v-if="isManager" 
                   @click="showAlterForm(trip)"
                   style="font-weight: bold; padding: 0 6px;"
-                  title="Modify trip">
-                  Modify
-                  </button>
+                  title="Modify trip"
+                >
+                  <span class="icon is-small">
+                    <i class="fas fa-pencil-alt"></i>
+                  </span>
+                </button>
               </td>
               <td>
                   <button 
-                  v-if="isManager" 
-                  class="button is-small is-danger is-light" 
-                  @click="deleteTrip(trip.trip_id)" 
-                  title="Delete trip"
-                  style="font-weight:bold; padding: 0 6px;"
+                    v-if="isManager" 
+                    class="button is-small is-danger is-light" 
+                    @click="deleteTrip(trip.trip_id)" 
+                    title="Delete trip"
+                    style="font-weight:bold; padding: 0 6px;"
                   >
-                  Delete
+                    <span class="icon is-small">
+                      <i class="fas fa-times"></i>
+                    </span>
                   </button>
               </td>
-              </tr>
+            </tr>
           </tbody>
           </table>
       </div>
@@ -237,6 +258,10 @@ const deleteTrip = async (tripId) => {
   }
 }
 
+function showMissionsPanel() {
+
+}
+
 function showAlterForm(trip) {
   selectedTrip.value = trip
   showAlterTripForm.value = true
@@ -265,5 +290,39 @@ function hideAddForm() {
 .table-wrapper, .table-wrapper canvas {
   width: 100% !important;
   min-height: unset;
+}
+
+thead th:nth-child(1),
+tbody td:nth-child(1),
+thead th:nth-child(2),
+tbody td:nth-child(2),
+thead th:nth-child(3),
+tbody td:nth-child(3),
+thead th:nth-child(4),
+tbody td:nth-child(4) {
+  width: 15%;
+}
+
+thead th:nth-child(5),
+tbody td:nth-child(5),
+thead th:nth-child(6),
+tbody td:nth-child(6),
+thead th:nth-child(7),
+tbody td:nth-child(7) {
+  width: 5%;
+}
+
+thead th:nth-child(8),
+tbody td:nth-child(8),
+thead th:nth-child(9) ,
+tbody td:nth-child(9) {
+  width: 10%;
+}
+
+thead th:nth-child(10),
+tbody td:nth-child(10),
+thead th:nth-child(11),
+tbody td:nth-child(11) {
+  width: 2.5%;
 }
 </style>

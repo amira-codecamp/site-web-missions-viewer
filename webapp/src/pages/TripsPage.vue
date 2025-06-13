@@ -3,21 +3,15 @@
   <section class="section">
     <div class="container">
 
-      <div class="columns">
-
-        <div class="column is-3">
-          <span class="has-text-weight-semibold is-size-6">Total Footprint (kg CO2): {{ totalCarbonFootprint }} </span>
-        </div>
-
-        <div class="column is-4"></div>
-
-        <div class="column is-2">
+      <div class="mb-4 columns">
+        <div class="column is-1">
+          <label class="is-size-7">From</label>
           <input
-          class="input"
-          list="begin_years_list"
-          v-model="beginYear"
-          placeholder="Start year"
-          required
+            class="input is-small"
+            list="begin_years_list"
+            v-model="beginYear"
+            placeholder="Start year"
+            required
           />
           <datalist id="begin_years_list">
               <option
@@ -27,9 +21,10 @@
               />
           </datalist>
         </div>
-        <div class="column is-2">
+        <div class="column is-1">
+          <label class="is-size-7">To</label>
           <input
-            class="input"
+            class="input is-small"
             list="end_years_list"
             v-model="endYear"
             placeholder="End year"
@@ -39,13 +34,10 @@
             <option v-for="year in endYears" :key="year" :value="year" />
           </datalist>
         </div>
-
-        <div class="column is-1">
-          <button class="button is-dark is-small" @click="filterTripsByYear">
-            <span>Change</span>
-          </button>
+        <div class="column is-2">
+          <span class="has-text-weight-semibold is-size-7">Total Footprint (kg CO2): </span>
+          <span class="has-text-weight-semibold has-background-info has-text-dark is-size-7">{{ totalCarbonFootprint }}</span>
         </div>
-
       </div>
 
       <div class="mb-4">

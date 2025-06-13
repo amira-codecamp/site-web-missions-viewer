@@ -435,7 +435,7 @@ watch(
 
 .pie-wrapper{
   height: 10rem !important;
-  width: 80% !important;
+  width: 65% !important;
 }
 
 .bar-wrapper{
