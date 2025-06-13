@@ -1,9 +1,9 @@
 
 <template>
-  <section class="section">
+  <section class="section" style="padding-top: 0.5rem;">
     <div class="container">
 
-      <div class="mb-4 columns">
+      <div class="columns is-vcentered is-multiline">
         <div class="column is-1">
           <label class="is-size-7">From</label>
           <input
@@ -34,10 +34,20 @@
             <option v-for="year in endYears" :key="year" :value="year" />
           </datalist>
         </div>
-        <div class="column is-2">
-          <span class="has-text-weight-semibold is-size-7">Total Footprint (kg CO2): </span>
-          <span class="has-text-weight-semibold has-background-info has-text-dark is-size-7">{{ totalCarbonFootprint }}</span>
+        <div class="column is-1">
+          <button class="button is-dark is-small" @click="filterTripsByYear">
+            <span>Select</span>
+          </button>
         </div>
+      </div>
+
+      <div class="mb-4" style="
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;"
+      >
+        <span class="has-text-weight-semibold is-size-7">Total Footprint (kg CO2):</span>
+        <span class="has-text-weight-semibold has-background-info has-text-dark is-size-6">{{ totalCarbonFootprint }}</span>
       </div>
 
       <div class="mb-4">
