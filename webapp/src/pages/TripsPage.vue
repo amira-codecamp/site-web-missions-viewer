@@ -1,7 +1,7 @@
 
 <template>
   <section class="section" style="padding-top: 0.5rem;">
-    <div class="container">
+    <div class="container" v-if="trips.length!=0">
 
       <div class="columns is-vcentered is-multiline">
         <div class="column is-1">
@@ -50,19 +50,24 @@
         <span class="has-text-weight-semibold has-background-info has-text-dark is-size-6">{{ totalCarbonFootprint }}</span>
       </div>
 
-      <div class="mb-4">
+      <div class="mb-2">
           <span class="has-text-weight-semibold is-size-7">Trips Charts</span>
       </div>
 
       <TripsCharts :totalCarbonFootprint="totalCarbonFootprint" :trips="trips" :key="chartsKey" />
 
-      <div class="mb-4">
+      <div class="mb-2">
           <span class="has-text-weight-semibold is-size-7">Trips Table</span>
       </div>
 
       <TripsTable :trips="trips" :key="tableKey" />
 
     </div>
+
+    <div class="mb-4" v-else>
+      <span>No trips available.</span>
+    </div>
+
   </section>
 </template>
 
