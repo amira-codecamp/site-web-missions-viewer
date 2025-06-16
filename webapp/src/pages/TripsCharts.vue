@@ -28,6 +28,19 @@
 
     <div class="column is-1"></div>
 
+    <div class="column is-5">
+      <div class="chart-wrapper bar-wrapper">
+        <GenericChart
+          :chartType="'bar'"
+          :labels="employeeBarChart.labels"
+          :datasets="employeeBarChart.datasets"
+          :options="employeeBarChart.options"
+        />
+      </div>
+    </div>
+
+    <div class="column is-1"></div>
+
     <div class="column is-2">
       <div class="chart-wrapper pie-wrapper">
         <GenericChart
@@ -37,9 +50,7 @@
           :chartType="'pie'"
         />
       </div>
-    </div>
 
-    <div class="column is-2">
       <div class="chart-wrapper pie-wrapper">
         <GenericChart
           :labels="transportPieChart.labels"
@@ -51,6 +62,7 @@
     </div>
 
     <div class="column is-2">
+
       <div class="chart-wrapper pie-wrapper">
         <GenericChart
           :labels="yearPieChart.labels"
@@ -59,9 +71,7 @@
           :chartType="'pie'"
         />
       </div>
-    </div>
 
-    <div class="column is-2">
       <div class="chart-wrapper pie-wrapper">
         <GenericChart
           :labels="missionPieChart.labels"
@@ -72,7 +82,7 @@
       </div>
     </div>
 
-    <div class="column is-2" v-if="isManager">
+    <div class="column is-2">
       <div class="chart-wrapper pie-wrapper">
         <GenericChart
           :labels="employeePieChart.labels"
@@ -81,9 +91,7 @@
           :chartType="'pie'"
         />
       </div>
-    </div>
 
-     <div class="column is-2">
       <div class="chart-wrapper pie-wrapper">
         <GenericChart
           :labels="statusPieChart.labels"
@@ -93,13 +101,6 @@
         />
       </div>
     </div>
-
-    <!-- <div class="mb-4 column is-full">
-      <span class="has-text-weight-semibold is-size-7">Trips Footprint</span>
-    </div> -->
-
-    <!-- <div class="column is-1"></div> -->
-
   </div>
 </template>
 
@@ -297,11 +298,19 @@ function missionChartData(trips) {
 }
 
 function employeeChartData(trips) {
-  return aggregateByKey(trips, trip => {
+  const aggregated = aggregateByKey(trips, trip => {
     const firstname = `${trip.employee.first_name || ''}`;
     const lastname = `${trip.employee.last_name || ''}`;
-    return `${firstname} ${lastname}`;
+    return `${firstname} ${lastname}`.trim();
   });
+  const labels = aggregated.labels
+  const values = aggregated.values
+  const combined = labels.map((label, i) => ({ label, value: values[i] }));
+  combined.sort((a, b) => a.value - b.value);
+  return {
+    labels: combined.map(item => item.label),
+    values: combined.map(item => item.value),
+  };
 }
 
 function statusChartData(trips) {
@@ -311,7 +320,7 @@ function statusChartData(trips) {
 const statusPieChart = computed(() => {
   const { labels, values } = statusChartData(trips);
   const datasets = [
-    createDatasetItem({ rgbStr: COLORS[6], label: '', values })
+    createDatasetItem({ rgbStr: COLORS[7], label: '', values })
   ];
   return buildPieChartConfig({ labels, datasets, title: 'Status' });
 });
@@ -319,7 +328,7 @@ const statusPieChart = computed(() => {
 const employeePieChart = computed(() => {
   const { labels, values } = employeeChartData(trips);
   const datasets = [
-    createDatasetItem({ rgbStr: COLORS[7], label: '', values })
+    createDatasetItem({ rgbStr: COLORS[6], label: '', values })
   ];
   return buildPieChartConfig({ labels, datasets, title: 'by Employee' });
 });
@@ -414,6 +423,23 @@ const TripBarChart = computed(() => {
     annotType: 'label',
     stacked: true,
     annotLabel: 'recommended:'
+  });
+});
+
+const employeeBarChart = computed(() => {
+  const { labels, values } = employeeChartData(trips);
+  const datasets = [
+    createDatasetItem({
+      rgbStr: COLORS[4],
+      label: '',
+      values: values
+    })
+  ];
+  return buildBarChartConfig({
+    xticks: labels,
+    labels: labels,
+    datasets,
+    title: 'per Employee',
   });
 });
 
