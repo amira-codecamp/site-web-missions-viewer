@@ -49,7 +49,7 @@ defineOptions({
 })
 
 import { ref, onMounted } from 'vue'
-import authservice from '@/services/authservice'
+import services from '@/services'
 import { useStore } from '@/store'
 import { useRouter } from 'vue-router'
 
@@ -75,9 +75,9 @@ async function submitForm() {
   try {
     const credentials = { login: login.value, password: password.value }
 
-    store.setItem('user', login.value)
+    store.setItem('logged', login.value)
 
-    const { access, refresh } = await authservice.login(credentials)
+    const { access, refresh } = await services.auth.login(credentials)
 
     store.setItem('accessToken', access)
     store.setItem('refreshToken', refresh)

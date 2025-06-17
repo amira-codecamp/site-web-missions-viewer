@@ -110,12 +110,7 @@ defineOptions({
 })
 
 import { ref, computed, onMounted, watch } from 'vue'
-import { useStore } from '@/store'
 import GenericChart from '@/components/GenericChart.vue'
-
-const store = useStore()
-
-const isManager = computed(() => store.state.isManager)
 
 const props = defineProps({
   totalCarbonFootprint: {
@@ -299,8 +294,8 @@ function missionChartData(trips) {
 
 function employeeChartData(trips) {
   const aggregated = aggregateByKey(trips, trip => {
-    const firstname = `${trip.employee.first_name || ''}`;
-    const lastname = `${trip.employee.last_name || ''}`;
+    const firstname = `${trip.mission.employee.first_name || ''}`;
+    const lastname = `${trip.mission.employee.last_name || ''}`;
     return `${firstname} ${lastname}`.trim();
   });
   const labels = aggregated.labels
@@ -439,7 +434,7 @@ const employeeBarChart = computed(() => {
     xticks: labels,
     labels: labels,
     datasets,
-    title: 'per Employee',
+    title: 'by Employee',
   });
 });
 

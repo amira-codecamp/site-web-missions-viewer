@@ -12,18 +12,26 @@ import { useStore } from '@/store'
 
 import TripGenericForm from '@/pages/TripGenericForm.vue'
 
-import tripsservice from '@/services/tripsservice'
-import authservice from '@/services/authservice'
+import services from '@/services'
 
 const store = useStore()
 
 const form = ref({
-    mission_num: '',
-    transport_name: '',
-    employee: {
-      first_name: '',
-      last_name: '',
-      email: '',
+    mission: {
+      start_date: '',
+      end_date: '',
+      mission_desc: '',
+      employee: {
+        first_name: '',
+        last_name: '',
+        email: '',
+        status: {
+          status_name: ''
+        },
+      },
+    },
+    transport: {
+      transport_name: '',
     },
     departure_city: '',
     departure_country: '',
@@ -34,37 +42,43 @@ const form = ref({
     carbon_footprint: null,
 })
 
+const fetchToken = async () => {
+  try {
+    const refresh = store.state.refreshToken;
+    const responsetok = await services.auth.refresh(refresh);
+    store.setItem("accessToken", responsetok.access);
+
+  } catch (error) {
+    alert("Session expired. Please login again.");
+
+    store.clearItem('trips');
+    store.clearItem('employees');
+    store.clearItem('users');
+    store.clearItem('transports');
+    store.clearItem('missions');
+    store.clearItem('isManager');
+    store.clearItem('isAdmin');
+    store.clearItem('logged');
+    store.clearItem('accessToken');
+    store.clearItem('refreshToken');
+
+    window.location.href = '/login';
+    return;
+  }
+}
+
 const submitForm = async (formData, numRows) => {
   try {
 
-    try {
-        const refresh = store.state.refreshToken
-        const responsetok = await authservice.refresh(refresh)
-        store.setItem("accessToken", responsetok.access)
-
-    } catch (error) {
-        alert("Session expired. Please login again.")
-
-        store.clearItem('trips')
-        store.clearItem('employees')
-        store.clearItem('transports')
-        store.clearItem('missions')
-        store.clearItem('isManager')
-        store.clearItem('user')
-        store.clearItem('accessToken')
-        store.clearItem('refreshToken')
-
-        window.location.href = '/login'
-        return
-    }
+    await fetchToken();
 
     const access = store.state.accessToken
 
     for (let i = 0; i < numRows; i++) {
-        await tripsservice.trips.createTrip(access, { ...formData })
+      await services.trips.createTrip(access, { ...formData });
     }
 
-    const response = await tripsservice.trips.fetchTrips(access)
+    const response = await services.trips.fetchTrips(access);
     store.setItem('trips', response.trips)
 
     alert(`${numRows} trip${numRows === 1 ? '' : 's'} created successfully!`)

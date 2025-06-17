@@ -13,17 +13,17 @@
                           <input
                           class="input"
                           list="missions-list"
-                          v-model="form.mission_num"
+                          v-model="selectedMission"
                           placeholder="Type mission"
                           required
                           />
                           <datalist id="missions-list">
                               <option
                                 v-for="mission in missions"
-                                :key="mission.mission_num"
-                                :value="mission.mission_num"
+                                :key="mission.mission_desc"
+                                :value="mission.mission_desc"
                               >
-                                From {{ mission.start_date }} To {{ mission.end_date }} | {{ mission.mission_desc }}
+                                {{ mission.start_date }} -> {{ mission.end_date }}
                               </option>
                           </datalist>
                       </div>
@@ -54,7 +54,7 @@
                         <input
                         class="input"
                         list="transports-list"
-                        v-model="form.transport_name"
+                        v-model="form.transport.transport_name"
                         placeholder="Type transport"
                         required
                         />
@@ -63,27 +63,6 @@
                                 v-for="transport in transports"
                                 :key="transport.transport_name"
                                 :value="transport.transport_name"
-                                />
-                        </datalist>
-                    </div>
-                </div>
-
-                <!-- Employee -->
-                <div class="field mb-5">
-                    <label class="label has-text-weight-medium has-text-grey-dark">Employee</label>
-                    <div class="control">
-                        <input
-                        class="input"
-                        list="employees-list"
-                        v-model="selectedEmployee"
-                        placeholder="Type employee"
-                        required
-                        />
-                        <datalist id="employees-list">
-                            <option
-                                v-for="employee in employees"
-                                :key="employee.email"
-                                :value="formatEmployee(employee)"
                             />
                         </datalist>
                     </div>
@@ -179,7 +158,7 @@
 
                 <!-- Map Placeholder -->
                 <div class="field mb-5">
-                    <div id="map_wrapper" style="height: 55vh;">
+                    <div id="map_wrapper" style="height: 40vh;">
                         <l-map
                         ref="mapRef"
                         :bounds="initialBounds"
@@ -223,9 +202,7 @@ import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { useStore } from '@/store'
 import debounce from 'lodash.debounce'
 import { LMap, LTileLayer, LMarker, LPolyline } from '@vue-leaflet/vue-leaflet'
-import authservice from '@/services/authservice'
-import geonamesservice from '@/services/geonamesservice'
-import emissionsservice from '@/services/emissionsservice'
+import services from '@/services'
 import MissionForm from '@/pages/MissionForm.vue'
 
 
@@ -265,22 +242,14 @@ const list2Name = ref(props.list2Name)
 
 const departureCities = ref([])
 const destinationCities = ref([])
+const selectedMission = ref('');
 const quantityField = ref(1)
 const mapRef = ref(null)
 const polylineRef = ref(null)
 const initialBounds = ref(null)
 
 const missions = computed(() => store.state.missions)
-const employees = computed(() => store.state.employees)
 const transports = computed(() => store.state.transports)
-
-const formatEmployee = (emp) => `${emp.first_name} ${emp.last_name} <${emp.email}>`
-
-const selectedEmployee = ref(
-  props.initialForm.employee && (props.initialForm.employee.first_name || props.initialForm.employee.last_name || props.initialForm.employee.email)
-    ? formatEmployee(props.initialForm.employee)
-    : ''
-);
 
 const countryCodeToFlag = (countryIsoCode) => {
   if (!countryIsoCode || typeof countryIsoCode !== 'string') return ''
@@ -293,7 +262,7 @@ const formatCityWithFlag = (city) => {
 }
 
 const fetchCities = async (cityName) => {
-  const response = await geonamesservice.fetchCities(cityName)
+  const response = await services.cities.fetchCities(cityName)
   return response
 }
 
@@ -357,27 +326,34 @@ function hideMissionForm() {
   MissionFormActive.value = false
 }
 
-const onSubmit = async () => {
+const fetchToken = async () => {
   try {
-    const refresh = store.state.refreshToken
-    const responsetok = await authservice.refresh(refresh)
-    store.setItem("accessToken", responsetok.access)
+    const refresh = store.state.refreshToken;
+    const responsetok = await services.auth.refresh(refresh);
+    store.setItem("accessToken", responsetok.access);
 
   } catch (error) {
-    alert("Session expired. Please login again.")
+    alert("Session expired. Please login again.");
 
-    store.clearItem('trips')
-    store.clearItem('employees')
-    store.clearItem('transports')
-    store.clearItem('missions')
-    store.clearItem('isManager')
-    store.clearItem('user')
-    store.clearItem('accessToken')
-    store.clearItem('refreshToken')
+    store.clearItem('trips');
+    store.clearItem('employees');
+    store.clearItem('users');
+    store.clearItem('transports');
+    store.clearItem('missions');
+    store.clearItem('isManager');
+    store.clearItem('isAdmin');
+    store.clearItem('logged');
+    store.clearItem('accessToken');
+    store.clearItem('refreshToken');
 
-    window.location.href = '/login'
-    return
+    window.location.href = '/login';
+    return;
   }
+}
+
+const onSubmit = async () => {
+
+  await fetchToken();
 
   const access = store.state.accessToken
 
@@ -386,31 +362,31 @@ const onSubmit = async () => {
     destinationCities.value.find(cit => formatCityWithFlag(cit) === selectedDestinationCity.value)
   ]
 
-  const mission = missions.value.find(m => m.mission_num === form.value.mission_num)
+  const mission = missions.value.find(m => m.mission_desc === selectedMission.value);
+  form.value.mission = mission;
+
   const full_year = new Date(mission.start_date).getFullYear().toString()
 
   const payload = {
+    transport: form.value.transport.transport_name,
     departure_country: dep_city_obj.countryCode,
+    destination_country: dest_city_obj.countryCode,
     departure_lat: dep_city_obj.lat,
     departure_long: dep_city_obj.lng,
-    destination_country: dest_city_obj.countryCode,
     destination_lat: dest_city_obj.lat,
     destination_long: dest_city_obj.lng,
-    transport: form.value.transport_name,
     carpooling: form.value.carpooling,
     is_round_trip: form.value.is_round_trip,
     year: full_year,
   }
 
-  const response = await emissionsservice.getCarbonFootprint(payload, access)
+  const response = await services.carbon.getCarbonFootprint(payload, access)
   form.value.carbon_footprint = Number(Number(response.carbon_footprint).toFixed(2))
 
   form.value.departure_country = dep_city_obj.countryName
   form.value.departure_city = dep_city_obj.name
   form.value.destination_country = dest_city_obj.countryName
   form.value.destination_city = dest_city_obj.name
-
-  form.value.employee = employees.value.find(emp => formatEmployee(emp) === selectedEmployee.value)
 
   emit('submit', form.value, quantityField.value)
 }
@@ -432,6 +408,10 @@ onMounted(async () => {
       destinationCities.value = cities;
       selectedDestinationCity.value = formatCityWithFlag(cities[0]);
     }
+  }
+
+  if (props.initialForm.mission) {
+    selectedMission.value = props.initialForm.mission.mission_desc;
   }
 });
 </script>

@@ -1,15 +1,24 @@
 <template>
   <form @submit.prevent="submitForm">
 
-    <!-- Administrative Number -->
+    <!-- Employee -->
     <div class="field mb-5">
-        <div class="columns">
-            <div class="column is-5">
-                <label class="label has-text-weight-medium has-text-grey-dark">Number</label>
-                <div class="control">
-                    <input type="text" v-model="form.mission_num" class="input" required />
-                </div>
-            </div>
+        <label class="label has-text-weight-medium has-text-grey-dark">Employee</label>
+        <div class="control">
+            <input
+            class="input"
+            list="employees-list"
+            v-model="selectedEmployee"
+            placeholder="Type employee"
+            required
+            />
+            <datalist id="employees-list">
+                <option
+                    v-for="employee in employees"
+                    :key="employee.email"
+                    :value="formatEmployee(employee)"
+                />
+            </datalist>
         </div>
     </div>
 
@@ -62,12 +71,11 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 import { useStore } from '@/store'
 
-import tripsservice from '@/services/tripsservice'
-import authservice from '@/services/authservice'
+import services from '@/services'
 
 
 defineOptions({
@@ -76,42 +84,64 @@ defineOptions({
 
 const store = useStore()
 
+const employees = computed(() => store.state.employees)
+
 const form = ref({
   start_date: '',
   end_date: '',
-  mission_num: '',
+  employee: {
+    'first_name': '',
+    'last_name': '',
+    'email': '',
+    'status': {
+        'status_name': '',
+    }
+  },
   mission_desc: ''
 })
+
+const formatEmployee = (emp) => `${emp.first_name} ${emp.last_name} <${emp.email}>`
+
+const selectedEmployee = ref('');
+
+const fetchToken = async () => {
+  try {
+    const refresh = store.state.refreshToken;
+    const responsetok = await services.auth.refresh(refresh);
+    store.setItem("accessToken", responsetok.access);
+
+  } catch (error) {
+    alert("Session expired. Please login again.");
+
+    store.clearItem('trips');
+    store.clearItem('employees');
+    store.clearItem('users');
+    store.clearItem('transports');
+    store.clearItem('missions');
+    store.clearItem('isManager');
+    store.clearItem('isAdmin');
+    store.clearItem('logged');
+    store.clearItem('accessToken');
+    store.clearItem('refreshToken');
+
+    window.location.href = '/login';
+    return;
+  }
+}
 
 const submitForm = async () => {
     try {
 
-        try {
-            const refresh = store.state.refreshToken
-            const responsetok = await authservice.refresh(refresh)
-            store.setItem("accessToken", responsetok.access)
+        const employee = employees.value.find(m => formatEmployee(m) === selectedEmployee.value);
+        form.value.employee = employee;
 
-        } catch (error) {
-            alert("Session expired. Please login again.")
-
-            store.clearItem('trips')
-            store.clearItem('employees')
-            store.clearItem('transports')
-            store.clearItem('missions')
-            store.clearItem('isManager')
-            store.clearItem('user')
-            store.clearItem('accessToken')
-            store.clearItem('refreshToken')
-
-            window.location.href = '/login'
-            return
-        }
+        await fetchToken();
 
         const access = store.state.accessToken
 
-        await tripsservice.missions.createMission(access, { ...form.value })
+        await services.missions.createMission(access, { ...form.value })
 
-        const response = await tripsservice.missions.fetchMissions(access)
+        const response = await services.missions.fetchMissions(access)
         store.setItem('missions', response.missions)
 
         alert(`Mission created successfully!`)

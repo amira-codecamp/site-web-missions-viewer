@@ -3,7 +3,7 @@
     <nav class="navbar is-light">
       <div class="navbar-brand">
         <div class="navbar-item">
-          <span class="has-text-weight-semibold is-size-6">{{ user }}</span>
+          <span class="has-text-weight-semibold is-size-6">{{ logged }}</span>
         </div>
 
         <a
@@ -23,7 +23,7 @@
 
       <div class="navbar-menu" :class="{ 'is-active': isBurgerActive }">
         <div class="navbar-end">
-          <a class="navbar-item" @click="viewTrips">Trips</a>
+          <a class="navbar-item" @click="viewTrips" v-if="!isAdmin">Trips</a>
           <a class="navbar-item" @click="logout">Logout</a>
         </div>
       </div>
@@ -42,15 +42,14 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from '@/store'
 
-import tripsservice from '@/services/tripsservice'
-import employeesservice from '@/services/employeesservice'
-import transportsservice from '@/services/transportsservice'
+import services from '@/services'
 
 const store = useStore()
 const router = useRouter()
 
 const isBurgerActive = ref(false)
-const user = computed(() => store.state.user)
+const logged = computed(() => store.state.logged)
+const isAdmin = computed(() => store.state.isAdmin)
 
 function toggleBurger() {
   isBurgerActive.value = !isBurgerActive.value
@@ -61,8 +60,10 @@ function logout() {
   store.clearItem('employees')
   store.clearItem('transports')
   store.clearItem('missions')
+  store.clearItem('users')
   store.clearItem('isManager')
-  store.clearItem('user')
+  store.clearItem('isAdmin')
+  store.clearItem('logged')
   store.clearItem('accessToken')
   store.clearItem('refreshToken')
 
@@ -73,35 +74,63 @@ function viewTrips() {
   router.push('/member/trips')
 }
 
+async function getTransports(accessToken) {
+  try {
+    const transportsResponse = await services.transports.fetchTransports(accessToken);
+    store.setItem('transports', transportsResponse.transports);
+  } catch (error) {
+    console.error('Error fetching transports:', error);
+  }
+}
+
+async function getTrips(accessToken) {
+  try {
+    const tripsResponse = await services.trips.fetchTrips(accessToken);
+    store.setItem('trips', tripsResponse.trips);
+  } catch (error) {
+    console.error('Error fetching trips:', error);
+  }
+}
+
+async function getEmployees(accessToken) {
+  try {
+    const employeesResponse = await services.employees.fetchEmployees(accessToken);
+    store.setItem('employees', employeesResponse.employees);
+  } catch (error) {
+    console.error('Error fetching employees:', error);
+  }
+}
+
+async function getMissions(accessToken) {
+  try {
+    const missionsResponse = await services.missions.fetchMissions(accessToken);
+    store.setItem('missions', missionsResponse.missions);
+    store.setItem('isManager', true);
+  } catch (error) {
+    console.error('Error fetching missions:', error);
+  }
+}
+
+async function getUsers(accessToken) {
+  try {
+    const usersResponse = await services.users.fetchUsers(accessToken);
+    store.setItem('users', usersResponse.users);
+    store.setItem('isAdmin', true);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+  }
+}
+
 async function fetchData() {
-  const accessToken = store.state.accessToken
+  const accessToken = store.state.accessToken;
 
-  try {
-    const tripsResponse = await tripsservice.trips.fetchTrips(accessToken)
-    store.setItem('trips', tripsResponse.trips)
-  } catch (error) {
-    console.error('Error fetching trips:', error)
-    return
-  }
-
-  try {
-    const [transportsRes, employeesRes, missionsRes] = await Promise.all([
-      transportsservice.fetchTransports(accessToken),
-      employeesservice.fetchEmployees(accessToken),
-      tripsservice.missions.fetchMissions(accessToken),
-    ])
-    store.setItem('transports', transportsRes.transports)
-    store.setItem('employees', employeesRes.employees)
-    store.setItem('missions', missionsRes.missions)
-
-    store.setItem('isManager', true)
-  } catch (error) {
-    if (error?.response?.status === 401) {
-      store.setItem('isManager', false)
-    } else {
-      console.error('Error fetching manager data:', error)
-    }
-  }
+  await Promise.all([
+    getTransports(accessToken),
+    getTrips(accessToken),
+    getMissions(accessToken),
+    getEmployees(accessToken),
+    getUsers(accessToken),
+  ]);
 }
 
 onMounted(() => {

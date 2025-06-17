@@ -2,14 +2,16 @@
 import { reactive, computed } from 'vue'
 
 interface State {
-  user: string
+  logged: string
   accessToken: string
   refreshToken: string
   isManager: boolean
+  isAdmin: boolean
   trips: any[]
   missions: any[]
   transports: any[]
   employees: any[]
+  users: any[]
 }
 
 function storageGet<T>(key: string, defaultValue: T): T {
@@ -35,14 +37,16 @@ function storageRemove(key: string): void {
 }
 
 const state = reactive<State>({
-  user: storageGet<string>('user', ''),
+  logged: storageGet<string>('logged', ''),
   accessToken: storageGet<string>('accessToken', ''),
   refreshToken: storageGet<string>('refreshToken', ''),
   isManager: storageGet<boolean>('isManager', false),
+  isAdmin: storageGet<boolean>('isAdmin', false),
   trips: storageGet<any[]>('trips', []),
   missions: storageGet<any[]>('missions', []),
   transports: storageGet<any[]>('transports', []),
   employees: storageGet<any[]>('employees', []),
+  users: storageGet<any[]>('users', [])
 })
 
 function setItem<K extends keyof State>(key: K, value: State[K]) {
@@ -60,8 +64,10 @@ function clearItem<K extends keyof State>(key: K) {
     employees: [],
     transports: [],
     missions: [],
+    users: [],
     isManager: false,
-    user: null,
+    isAdmin: false,
+    logged: null,
     accessToken: null,
     refreshToken: null,
   };
@@ -72,7 +78,7 @@ function clearItem<K extends keyof State>(key: K) {
   storageRemove(key);
 }
 
-const isAuthenticated = computed(() => !!state.user && !!state.accessToken)
+const isAuthenticated = computed(() => !!state.logged && !!state.accessToken)
 
 export function useStore() {
   return {

@@ -36,13 +36,13 @@
               <tr>
               <th>Dates</th>
               <th>Mission</th>
+              <th>Employee</th>
               <th>Departure</th>
               <th>Destination</th>
               <th>Transport</th>
               <th>Carpoolers</th>
               <th>IsRound</th>
               <th>Footprint</th>
-              <th>Employee</th>
               <th colspan="2">
                 <button class="button is-secondary is-small" @click="exportToXLSX">
                   <span class="icon is-small">
@@ -56,14 +56,14 @@
           <tbody>
               <tr v-for="trip in filteredTrips" :key="trip.trip_id">
               <td>{{ trip.mission.start_date }} → {{ trip.mission.end_date }}</td>
-              <td>{{ trip.mission.mission_num }}/ {{ trip.mission.mission_desc }}</td>
+              <td>{{ trip.mission.mission_desc }}</td>
+              <td>{{ trip.mission.employee.first_name }} {{ trip.mission.employee.last_name }}</td>
               <td>{{ trip.departure_city }}, {{ trip.departure_country }}</td>
               <td>{{ trip.destination_city }}, {{ trip.destination_country }}</td>
               <td>{{ trip.transport.transport_name }}</td>
               <td>{{ trip.carpooling === 1 ? '' : trip.carpooling }}</td>
               <td>{{ trip.is_round_trip === true ? '×' : '' }}</td>
               <td class="has-text-weight-semibold">{{ trip.carbon_footprint }} kg CO2</td>
-              <td>{{ trip.employee.first_name }} {{ trip.employee.last_name }}</td>
               <td>
                 <button 
                   class="button is-link is-light is-small" 
@@ -79,9 +79,9 @@
               </td>
               <td>
                   <button 
-                    v-if="isManager" 
+                    v-if="isManager"
                     class="button is-small is-danger is-light" 
-                    @click="deleteTrip(trip.trip_id)" 
+                    @click="deleteTrip(trip)" 
                     title="Delete trip"
                     style="font-weight:bold; padding: 0 6px;"
                   >
@@ -131,8 +131,7 @@ defineOptions({
   name: 'TripsTable',
 })
 
-import tripsservice from '@/services/tripsservice'
-import authservice from '@/services/authservice'
+import services from '@/services'
 
 import { useStore } from '@/store'
 import { ref, computed } from 'vue'
@@ -178,7 +177,7 @@ const filteredTrips = computed(() => {
       trip.destination_city,
       trip.destination_country,
       trip.transport?.transport_name,
-      `${trip.employee?.first_name || ''} ${trip.employee?.last_name || ''}`,
+      `${trip.mission?.employee?.first_name || ''} ${trip.mission?.employee?.last_name || ''}`,
       trip.carbon_footprint?.toString() || '',
     ]
     return fields.some(field => normalizeString(field).includes(term))
@@ -200,7 +199,7 @@ function exportToXLSX() {
     'Destination Country': trip.destination_country || '',
     'Transport': trip.transport?.transport_name || '',
     'Carbon Footprint': trip.carbon_footprint || '',
-    'Employee Name': `${trip.employee?.first_name || ''} ${trip.employee?.last_name || ''}`.trim(),
+    'Employee Name': `${trip.mission?.employee?.first_name || ''} ${trip.mission?.employee?.last_name || ''}`.trim(),
   }))
   const worksheet = XLSX.utils.json_to_sheet(exportData)
   const workbook = XLSX.utils.book_new()
@@ -214,7 +213,7 @@ function exportToXLSX() {
 const fetchToken = async () => {
   try {
     const refresh = store.state.refreshToken;
-    const responsetok = await authservice.refresh(refresh);
+    const responsetok = await services.auth.refresh(refresh);
     store.setItem("accessToken", responsetok.access);
 
   } catch (error) {
@@ -222,10 +221,12 @@ const fetchToken = async () => {
 
     store.clearItem('trips');
     store.clearItem('employees');
+    store.clearItem('users');
     store.clearItem('transports');
     store.clearItem('missions');
     store.clearItem('isManager');
-    store.clearItem('user');
+    store.clearItem('isAdmin');
+    store.clearItem('logged');
     store.clearItem('accessToken');
     store.clearItem('refreshToken');
 
@@ -234,16 +235,16 @@ const fetchToken = async () => {
   }
 }
 
-const deleteTrip = async (tripId) => {
+const deleteTrip = async (trip) => {
   try {
 
     await fetchToken();
 
     const access = store.state.accessToken;
 
-    await tripsservice.trips.deleteTrip(access, { trip_id: tripId });
+    await services.trips.deleteTrip(access, trip);
 
-    const response1 = await tripsservice.trips.fetchTrips(access);
+    const response1 = await services.trips.fetchTrips(access);
     store.setItem('trips', response1.trips);
 
     alert(`Trip deleted successfully!`)
@@ -296,15 +297,15 @@ thead th:nth-child(1),
 tbody td:nth-child(1),
 thead th:nth-child(2),
 tbody td:nth-child(2),
-thead th:nth-child(3),
-tbody td:nth-child(3),
 thead th:nth-child(4),
-tbody td:nth-child(4) {
+tbody td:nth-child(4),
+thead th:nth-child(5),
+tbody td:nth-child(5) {
   width: 15%;
 }
 
-thead th:nth-child(5),
-tbody td:nth-child(5),
+thead th:nth-child(8),
+tbody td:nth-child(8),
 thead th:nth-child(6),
 tbody td:nth-child(6),
 thead th:nth-child(7),
@@ -312,8 +313,8 @@ tbody td:nth-child(7) {
   width: 5%;
 }
 
-thead th:nth-child(8),
-tbody td:nth-child(8),
+thead th:nth-child(3),
+tbody td:nth-child(3),
 thead th:nth-child(9) ,
 tbody td:nth-child(9) {
   width: 10%;

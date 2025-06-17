@@ -12,8 +12,7 @@ import { useStore } from '@/store'
 
 import TripGenericForm from '@/pages/TripGenericForm.vue'
 
-import tripsservice from '@/services/tripsservice'
-import authservice from '@/services/authservice'
+import services from '@/services'
 
 const store = useStore()
 
@@ -27,12 +26,21 @@ const props = defineProps({
 const isFormReady = ref(false)
 
 const form = ref({
-    mission_num: '',
-    transport_name: '',
-    employee: {
-      first_name: '',
-      last_name: '',
-      email: '',
+    mission: {
+      start_date: '',
+      end_date: '',
+      mission_desc: '',
+      employee: {
+        first_name: '',
+        last_name: '',
+        email: '',
+        status: {
+          status_name: ''
+        },
+      },
+    },
+    transport: {
+      transport_name: '',
     },
     departure_city: '',
     departure_country: '',
@@ -43,17 +51,41 @@ const form = ref({
     carbon_footprint: null,
 })
 
+const fetchToken = async () => {
+  try {
+    const refresh = store.state.refreshToken;
+    const responsetok = await services.auth.refresh(refresh);
+    store.setItem("accessToken", responsetok.access);
+
+  } catch (error) {
+    alert("Session expired. Please login again.");
+
+    store.clearItem('trips');
+    store.clearItem('employees');
+    store.clearItem('users');
+    store.clearItem('transports');
+    store.clearItem('missions');
+    store.clearItem('isManager');
+    store.clearItem('isAdmin');
+    store.clearItem('logged');
+    store.clearItem('accessToken');
+    store.clearItem('refreshToken');
+
+    window.location.href = '/login';
+    return;
+  }
+}
+
 const initializeForm = async () => {
 
     if (props.trip) {
         const trip = props.trip
 
         form.value.trip_id = trip.trip_id
-        form.value.mission_num = trip.mission.mission_num
-        form.value.transport_name = trip.transport.transport_name
+        form.value.mission = trip.mission
+        form.value.transport = trip.transport
         form.value.is_round_trip = trip.is_round_trip
         form.value.carpooling = trip.carpooling
-        form.value.employee = trip.employee
         form.value.departure_city = trip.departure_city
         form.value.departure_country = trip.departure_country
         form.value.destination_city = trip.destination_city
@@ -66,32 +98,13 @@ const initializeForm = async () => {
 const submitForm = async (formData, numRows) => {
   try {
 
-    try {
-        const refresh = store.state.refreshToken
-        const responsetok = await authservice.refresh(refresh)
-        store.setItem("accessToken", responsetok.access)
-
-    } catch (error) {
-        alert("Session expired. Please login again.")
-
-        store.clearItem('trips')
-        store.clearItem('employees')
-        store.clearItem('transports')
-        store.clearItem('missions')
-        store.clearItem('isManager')
-        store.clearItem('user')
-        store.clearItem('accessToken')
-        store.clearItem('refreshToken')
-
-        window.location.href = '/login'
-        return
-    }
+    await fetchToken();
 
     const access = store.state.accessToken
 
-    await tripsservice.trips.alterTrip(access, { ...formData });
+    await services.trips.alterTrip(access, { ...formData });
 
-    const response = await tripsservice.trips.fetchTrips(access);
+    const response = await services.trips.fetchTrips(access);
     store.setItem('trips', response.trips);
 
     alert('Trip updated successfully!');
