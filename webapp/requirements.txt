@@ -1,0 +1,13 @@
+axios
+bulma
+bulma-toast
+echarts
+vue-echarts
+xlsx 
+file-saver
+bulma-tooltip
+leaflet 
+@vue-leaflet/vue-leaflet
+chartjs-plugin-annotation
+vue3-slider
+@fortawesome/fontawesome-free
