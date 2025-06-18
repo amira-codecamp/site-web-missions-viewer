@@ -2,6 +2,7 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import LogInForm from '@/pages/LogInForm.vue'
 import TripsPage from '@/pages/TripsPage.vue'
 import MemberPage from '@/pages/MemberPage.vue'
+import UsersPage from '@/pages/UsersPage.vue'
 import { useStore } from '@/store'
 
 const routes: RouteRecordRaw[] = [
@@ -24,6 +25,11 @@ const routes: RouteRecordRaw[] = [
         path: 'trips',
         name: 'trips',
         component: TripsPage,
+      },
+      {
+        path: 'users',
+        name: 'users',
+        component: UsersPage,
       },
     ],
   },

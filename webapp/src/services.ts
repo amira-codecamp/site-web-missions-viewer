@@ -84,6 +84,32 @@ const users = {
     );
     return response.data;
   },
+  async deleteUser(token: any, userData: any): Promise<void> {
+    const response = await axios.delete(
+      `${API_URL}/api/users/`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        data: userData,
+      }
+    );
+    return response.data;
+  },
+  async createUser(token: any, user: any): Promise<any> {
+    const response = await axios.post(
+      `${API_URL}/api/users/`,
+      user,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data;
+  },
 };
 
 /**

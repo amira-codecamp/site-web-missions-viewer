@@ -24,6 +24,7 @@
       <div class="navbar-menu" :class="{ 'is-active': isBurgerActive }">
         <div class="navbar-end">
           <a class="navbar-item" @click="viewTrips" v-if="!isAdmin">Trips</a>
+          <a class="navbar-item" @click="viewUsers" v-if="isAdmin">Users</a>
           <a class="navbar-item" @click="logout">Logout</a>
         </div>
       </div>
@@ -72,6 +73,10 @@ function logout() {
 
 function viewTrips() {
   router.push('/member/trips')
+}
+
+function viewUsers() {
+  router.push('/member/users')
 }
 
 async function getTransports(accessToken) {
