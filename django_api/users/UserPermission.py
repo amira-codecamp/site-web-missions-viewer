@@ -11,3 +11,7 @@ class IsDeleteUserPermission(BasePermission):
 class IsAddUserPermission(BasePermission):
     def has_permission(self, request, view):
         return request.user.has_perm('add_user')
+    
+class IsModifyUserPermission(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.has_perm('change_user')

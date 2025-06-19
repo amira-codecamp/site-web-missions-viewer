@@ -6,9 +6,9 @@ from rest_framework.permissions import IsAuthenticated
 from trips.models import Employee
 
 from users.UserModel import User, Group
-from users.UserSerializer import UserSerializer
+from users.UserSerializer import UserSerializer, GroupSerializer
 
-from users.UserPermission import IsViewUserPermission, IsDeleteUserPermission, IsAddUserPermission
+from users.UserPermission import IsViewUserPermission, IsDeleteUserPermission, IsAddUserPermission, IsModifyUserPermission
 
 
 class UserView(APIView):
@@ -54,3 +54,38 @@ class UserView(APIView):
                 return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    # PUT: Update User
+    def put(self, request):
+        # Permission check
+        if not IsModifyUserPermission().has_permission(request, self):
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+
+        login = request.data.get('login')
+        if not login:
+            return Response({'error': 'login is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try: # Get user row
+            user = User.objects.get(login=login)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+        
+        data = request.data.copy()
+        data['password'] = user.password # keep user password
+
+        # Pass request.data with partial=True for partial update
+        serializer = UserSerializer(user, data=data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()  # <-- calls custom update method internally
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# View to retrieve groups
+class GroupView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        groups = Group.objects.all()
+        serializer = GroupSerializer(groups, many=True)
+        return Response({"groups": serializer.data}, status=status.HTTP_200_OK)

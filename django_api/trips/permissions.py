@@ -5,6 +5,10 @@ from rest_framework.permissions import BasePermission
 class IsViewEmployeePermission(BasePermission):
     def has_permission(self, request, view):
         return request.user.has_perm('view_employee')
+    
+class IsModifyEmployeePermission(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.has_perm('change_employee')
 
 # Check if user can view trips
 class IsViewTripPermission(BasePermission):

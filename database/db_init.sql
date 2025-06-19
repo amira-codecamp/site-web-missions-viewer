@@ -121,8 +121,8 @@ INSERT INTO Employees (first_name, last_name, email, `status`) VALUES
 ('Mathieu', 'LACROIX', 'lacroix@lipn.fr', 'researcher'),
 ('Étienne', 'ANDRÉ', 'Etienne.Andre@lipn.univ-paris13.fr', 'researcher'),
 ('Amira', 'HAMMADI', 'hammadi@lipn.univ-paris13.fr', 'intern'),
-('YYY', 'YYYYY', 'yyyyy@lipn.fr', 'technician'),
-('XXX', 'XXXXX', 'xxxxx@lipn.fr', 'technician');
+('missionmanager', 'missionmanager', 'missionmanager@lipn.fr', 'technician'),
+('admin', 'admin', 'admin@lipn.fr', 'technician');
 
 INSERT INTO `Groups` (group_name) VALUES 
 ('admin'),
@@ -183,8 +183,8 @@ INSERT INTO Users (login, password, date_joined, last_login, is_active, `group`,
 ('lacroix', 'pbkdf2_sha256$1000000$ev7fOcB3Rx1M8Av90qSSGm$BoDD/YWq4bpGPv9O+eOoAL0vHFdreGJpeI/WGBjoYpM=', '2010/03/10', '2025/05/08', TRUE, 'standard', 1),
 ('andre', 'pbkdf2_sha256$1000000$MYtyO8gaelf05aMTQnH3fV$5e+u4HywJ+bR5tk5sn1+/6if9MX/a1gm0FFnp6GaDZs=', '2010/03/10', '2025/05/08', TRUE, 'standard', 2),
 ('hammadi', 'pbkdf2_sha256$1000000$3ouINtYqNiJL8dcXFqm6gU$LVMxjbrPwrmgy2e91EFOc8ZQWGa/0B7aguQPgNcegyE=', '2024/04/14', '2025/05/08', TRUE, 'standard', 3),
-('xxxxx', 'pbkdf2_sha256$1000000$c1ilG4NoJ6VS9hE3GB9v1S$D9SGGM56KKI0OfKAOoc2IbxRk3oyI/OvGnxFdxGjcGQ=', '2020/04/14', '2025/05/08', TRUE, 'admin', 5),
-('yyyyy', 'pbkdf2_sha256$1000000$kzUVVFpiiRKzY42qSotTrO$jraq9nPC+BwcVV22D+No6qsr4IqKnT2zYeTP69Jk17E=', '2017/04/14', '2025/05/08', TRUE, 'missionmanager', 4);
+('missionmanager', 'pbkdf2_sha256$1000000$OQaPzaE6XDkRBKVvm0vZ3J$vFCCD5p8Gl1IlbhMFB5J1aXK7vo36DSVhOmWPsx8kKc=', '2024/04/14', '2025/05/08', TRUE, 'missionmanager', 4),
+('admin', 'pbkdf2_sha256$1000000$yx7t1QvvROIWZjN6XrguZs$RveAVbvCsU1wCcNNp8TlaV0vHwmdd5PksfLDqQqHNEQ=', '2024/04/14', '2025/05/08', TRUE, 'admin', 5);
 
 INSERT INTO Transports (transport_name) VALUES 
 ('car'),

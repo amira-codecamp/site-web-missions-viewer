@@ -66,6 +66,37 @@ const employees = {
     );
     return response.data;
   },
+  async modifyEmployee(token: any, employeeData: any): Promise<any> {
+    const response = await axios.put(
+      `${API_URL}/api/employees/`,
+      employeeData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data;
+  },
+};
+
+/**
+ * Status data fetching service
+ */
+const status = {
+  async fetchStatus(token: any): Promise<any> {
+    const response = await axios.get(
+      `${API_URL}/api/status`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data;
+  },
 };
 
 /**
@@ -101,6 +132,37 @@ const users = {
     const response = await axios.post(
       `${API_URL}/api/users/`,
       user,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data;
+  },
+  async modifyUser(token: any, userData: any): Promise<any> {
+    const response = await axios.put(
+      `${API_URL}/api/users/`,
+      userData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data;
+  },
+};
+
+/**
+ * Groups data fetching service
+ */
+const groups = {
+  async fetchGroups(token: any): Promise<any> {
+    const response = await axios.get(
+      `${API_URL}/api/groups`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -248,7 +310,9 @@ export default {
   auth,
   carbon,
   employees,
+  status,
   users,
+  groups,
   transports,
   trips,
   missions,

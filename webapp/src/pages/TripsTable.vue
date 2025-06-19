@@ -141,6 +141,8 @@ import { saveAs } from 'file-saver'
 import TripAddForm from '@/pages/TripAddForm.vue'
 import TripAlterForm from '@/pages/TripAlterForm.vue'
 
+import { fetchToken } from '@/session'
+
 const store = useStore()
 const search = ref('')
 const showAddTripForm = ref(false)
@@ -210,30 +212,6 @@ function exportToXLSX() {
 }
 
 // Operations on Trip
-const fetchToken = async () => {
-  try {
-    const refresh = store.state.refreshToken;
-    const responsetok = await services.auth.refresh(refresh);
-    store.setItem("accessToken", responsetok.access);
-
-  } catch (error) {
-    alert("Session expired. Please login again.");
-
-    store.clearItem('trips');
-    store.clearItem('employees');
-    store.clearItem('users');
-    store.clearItem('transports');
-    store.clearItem('missions');
-    store.clearItem('isManager');
-    store.clearItem('isAdmin');
-    store.clearItem('logged');
-    store.clearItem('accessToken');
-    store.clearItem('refreshToken');
-
-    window.location.href = '/login';
-    return;
-  }
-}
 
 const deleteTrip = async (trip) => {
   try {

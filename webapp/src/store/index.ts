@@ -11,7 +11,9 @@ interface State {
   missions: any[]
   transports: any[]
   employees: any[]
+  status: any[]
   users: any[]
+  groups: any[]
 }
 
 function storageGet<T>(key: string, defaultValue: T): T {
@@ -46,7 +48,9 @@ const state = reactive<State>({
   missions: storageGet<any[]>('missions', []),
   transports: storageGet<any[]>('transports', []),
   employees: storageGet<any[]>('employees', []),
-  users: storageGet<any[]>('users', [])
+  status: storageGet<any[]>('status', []),
+  users: storageGet<any[]>('users', []),
+  groups: storageGet<any[]>('groups', [])
 })
 
 function setItem<K extends keyof State>(key: K, value: State[K]) {
@@ -62,9 +66,11 @@ function clearItem<K extends keyof State>(key: K) {
   const defaultValues: Record<string, any> = {
     trips: [],
     employees: [],
+    status: [],
     transports: [],
     missions: [],
     users: [],
+    groups: [],
     isManager: false,
     isAdmin: false,
     logged: null,

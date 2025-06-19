@@ -13,6 +13,7 @@ import { useStore } from '@/store'
 import TripGenericForm from '@/pages/TripGenericForm.vue'
 
 import services from '@/services'
+import { fetchToken } from '@/session'
 
 const store = useStore()
 
@@ -50,31 +51,6 @@ const form = ref({
     carpooling: 1,
     carbon_footprint: null,
 })
-
-const fetchToken = async () => {
-  try {
-    const refresh = store.state.refreshToken;
-    const responsetok = await services.auth.refresh(refresh);
-    store.setItem("accessToken", responsetok.access);
-
-  } catch (error) {
-    alert("Session expired. Please login again.");
-
-    store.clearItem('trips');
-    store.clearItem('employees');
-    store.clearItem('users');
-    store.clearItem('transports');
-    store.clearItem('missions');
-    store.clearItem('isManager');
-    store.clearItem('isAdmin');
-    store.clearItem('logged');
-    store.clearItem('accessToken');
-    store.clearItem('refreshToken');
-
-    window.location.href = '/login';
-    return;
-  }
-}
 
 const initializeForm = async () => {
 

@@ -3,12 +3,13 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
-from trips.models import Employee, Trip, Mission, Transport
+from trips.models import Employee, Status, Trip, Mission, Transport
 
 from trips.serializers import (
     TripSerializer,
     MissionSerializer,
     EmployeeSerializer, 
+    StatusSerializer,
     TransportSerializer
 )
 
@@ -19,18 +20,52 @@ from trips.permissions import (
     IsDeleteTripPermission,
     IsModifyTripPermission,
     IsViewMissionPermission,
-    IsAddMissionPermission
+    IsAddMissionPermission,
+    IsModifyEmployeePermission
 )
 
 
-# View to retrieve employee list
+# View to retrieve status list
+class StatusView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        employeesstatus = Status.objects.all()
+        serializer = StatusSerializer(employeesstatus, many=True)
+        return Response({"status": serializer.data}, status=status.HTTP_200_OK)
+
+
+# View for employees table
 class EmployeeView(APIView):
     permission_classes = [IsAuthenticated, IsViewEmployeePermission]
 
-    def get(self, request):
+    def get(self, request): # get to retrieve employee list
         employees = Employee.objects.select_related('status').all()
         serializer = EmployeeSerializer(employees, many=True)
         return Response({"employees": serializer.data}, status=status.HTTP_200_OK)
+    
+    # PUT : Update an Employee
+    def put(self, request):
+        # Permission check
+        if not IsModifyEmployeePermission().has_permission(request, self):
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+
+        employee_id = request.data.get('employee_id')
+        if not employee_id:
+            return Response({'error': 'Employee ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Get employee instance
+            employee = Employee.objects.get(employee_id=employee_id)
+        except Employee.DoesNotExist:
+            return Response({'error': 'Employee not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Use partial=True for partial update
+        serializer = EmployeeSerializer(employee, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
 
 # View to retrieve transport modes

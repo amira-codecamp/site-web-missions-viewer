@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from trips.models import Employee, Status, Trip, Mission, Transport
+import re
 
 
 # Serializer for the Status model
@@ -20,10 +21,30 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Employee
-        fields = ['first_name', 'last_name', 'email', 'status']
+        fields = ['employee_id', 'first_name', 'last_name', 'email', 'status']
         extra_kwargs = {
             'email': {'validators': []},
         }
+        read_only_fields = ['employee_id']
+
+    def validate_email(self, value):
+        if not re.match(r'^[^@]+@lipn\.fr$', value) and not re.match(r'^[^@]+@lipn\.univ-paris13\.fr$', value):
+            raise serializers.ValidationError("Invalid email address. Only members of LIPN are allowed!")
+        return value
+
+    def update(self, instance, validated_data):
+        # Nested data from the payload
+        status_data = validated_data.pop('status')
+
+        # Retrieve status instance
+        instance.status = Status.objects.get(status_name=status_data['status_name'])
+
+        # Update other fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        return instance
 
 
 # Serializer for the Transport model

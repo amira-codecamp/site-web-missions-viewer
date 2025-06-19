@@ -24,8 +24,8 @@
       <div class="navbar-menu" :class="{ 'is-active': isBurgerActive }">
         <div class="navbar-end">
           <a class="navbar-item" @click="viewTrips" v-if="!isAdmin">Trips</a>
-          <a class="navbar-item" @click="viewUsers" v-if="isAdmin">Users</a>
-          <a class="navbar-item" @click="logout">Logout</a>
+          <a class="navbar-item" @click="viewAdminPanel" v-if="isAdmin">Admin</a>
+          <a class="navbar-item" @click="logoutUser">Logout</a>
         </div>
       </div>
     </nav>
@@ -45,6 +45,8 @@ import { useStore } from '@/store'
 
 import services from '@/services'
 
+import { logout } from '@/session'
+
 const store = useStore()
 const router = useRouter()
 
@@ -56,27 +58,16 @@ function toggleBurger() {
   isBurgerActive.value = !isBurgerActive.value
 }
 
-function logout() {
-  store.clearItem('trips')
-  store.clearItem('employees')
-  store.clearItem('transports')
-  store.clearItem('missions')
-  store.clearItem('users')
-  store.clearItem('isManager')
-  store.clearItem('isAdmin')
-  store.clearItem('logged')
-  store.clearItem('accessToken')
-  store.clearItem('refreshToken')
-
-  router.push('/login')
+function logoutUser() {
+  logout()
 }
 
 function viewTrips() {
   router.push('/member/trips')
 }
 
-function viewUsers() {
-  router.push('/member/users')
+function viewAdminPanel() {
+  router.push('/member/admin')
 }
 
 async function getTransports(accessToken) {
@@ -106,6 +97,15 @@ async function getEmployees(accessToken) {
   }
 }
 
+async function getStatus(accessToken) {
+  try {
+    const statusResponse = await services.status.fetchStatus(accessToken);
+    store.setItem('status', statusResponse.status);
+  } catch (error) {
+    console.error('Error fetching status:', error);
+  }
+}
+
 async function getMissions(accessToken) {
   try {
     const missionsResponse = await services.missions.fetchMissions(accessToken);
@@ -126,6 +126,15 @@ async function getUsers(accessToken) {
   }
 }
 
+async function getGroups(accessToken) {
+  try {
+    const groupsResponse = await services.groups.fetchGroups(accessToken);
+    store.setItem('groups', groupsResponse.groups);
+  } catch (error) {
+    console.error('Error fetching groups:', error);
+  }
+}
+
 async function fetchData() {
   const accessToken = store.state.accessToken;
 
@@ -134,7 +143,9 @@ async function fetchData() {
     getTrips(accessToken),
     getMissions(accessToken),
     getEmployees(accessToken),
+    getStatus(accessToken),
     getUsers(accessToken),
+    getGroups(accessToken)
   ]);
 }
 

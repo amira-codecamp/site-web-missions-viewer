@@ -46,3 +46,21 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
 
         return user
+    
+    def update(self, instance, validated_data):
+        # Nested data from the payload
+        employee_data = validated_data.pop('employee')
+        group_data = validated_data.pop('group')
+
+        # Retrieve Employee instance
+        instance.employee = Employee.objects.get(email=employee_data['email'])
+
+        # Retrieve Group instance
+        instance.group = Group.objects.get(group_name=group_data['group_name'])
+
+        # Update other fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        return instance

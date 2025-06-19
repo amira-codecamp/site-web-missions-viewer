@@ -205,6 +205,8 @@ import { LMap, LTileLayer, LMarker, LPolyline } from '@vue-leaflet/vue-leaflet'
 import services from '@/services'
 import MissionForm from '@/pages/MissionForm.vue'
 
+import { fetchToken } from '@/session'
+
 
 defineOptions({ name: 'TripGenericForm' })
 
@@ -324,31 +326,6 @@ function showMissionForm() {
 
 function hideMissionForm() {
   MissionFormActive.value = false
-}
-
-const fetchToken = async () => {
-  try {
-    const refresh = store.state.refreshToken;
-    const responsetok = await services.auth.refresh(refresh);
-    store.setItem("accessToken", responsetok.access);
-
-  } catch (error) {
-    alert("Session expired. Please login again.");
-
-    store.clearItem('trips');
-    store.clearItem('employees');
-    store.clearItem('users');
-    store.clearItem('transports');
-    store.clearItem('missions');
-    store.clearItem('isManager');
-    store.clearItem('isAdmin');
-    store.clearItem('logged');
-    store.clearItem('accessToken');
-    store.clearItem('refreshToken');
-
-    window.location.href = '/login';
-    return;
-  }
 }
 
 const onSubmit = async () => {
