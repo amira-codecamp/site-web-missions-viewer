@@ -28,12 +28,12 @@ class UserView(APIView):
         if not IsDeleteUserPermission().has_permission(request, self):
             return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
 
-        user_login = request.data.get('login')
-        if not user_login:
-            return Response({'error': 'user_login is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        user_id = request.data.get('user_id')
+        if not user_id:
+            return Response({'error': 'user_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            user = User.objects.get(login=user_login)
+            user = User.objects.get(user_id=user_id)
             user.delete()
             return Response({'message': 'User deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
         except User.DoesNotExist:
@@ -61,17 +61,18 @@ class UserView(APIView):
         if not IsModifyUserPermission().has_permission(request, self):
             return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
 
-        login = request.data.get('login')
-        if not login:
-            return Response({'error': 'login is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        user_id = request.data.get('user_id')
+        if not user_id:
+            return Response({'error': 'user_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try: # Get user row
-            user = User.objects.get(login=login)
+            user = User.objects.get(user_id=user_id)
         except User.DoesNotExist:
             return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
         
         data = request.data.copy()
-        data['password'] = user.password # keep user password
+        if data['password'] == '*****':
+            data['password'] = user.password # keep user password
 
         # Pass request.data with partial=True for partial update
         serializer = UserSerializer(user, data=data, partial=True)

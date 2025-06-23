@@ -21,7 +21,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['login', 'password', 'date_joined', 'last_login', 'is_active', 'group', 'employee']
+        fields = ['user_id', 'login', 'password', 'date_joined', 'last_login', 'is_active', 'group', 'employee']
+        read_only_fields = ['user_id']
 
     def create(self, validated_data):
         # Nested data from the payload
@@ -51,6 +52,7 @@ class UserSerializer(serializers.ModelSerializer):
         # Nested data from the payload
         employee_data = validated_data.pop('employee')
         group_data = validated_data.pop('group')
+        password = validated_data.pop('password')
 
         # Retrieve Employee instance
         instance.employee = Employee.objects.get(email=employee_data['email'])
@@ -61,6 +63,8 @@ class UserSerializer(serializers.ModelSerializer):
         # Update other fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
+
+        instance.set_password(password)
 
         instance.save()
         return instance

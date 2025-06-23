@@ -10,12 +10,11 @@
                     <input type="text" 
                     v-model="form.login" 
                     class="input" 
-                    :readonly="props.task === 'modify'" 
                     required />
                 </div>
             </div>
 
-            <div class="field mb-5" v-if="props.task==='add'">
+            <div class="field mb-5">
                 <label class="label has-text-weight-medium has-text-grey-dark">Password</label>
                 <div class="control">
                     <input type="password" 
@@ -25,7 +24,7 @@
                 </div>
             </div>
 
-            <div class="field mb-5" v-if="props.task==='add'">
+            <div class="field mb-5">
                 <label class="label has-text-weight-medium has-text-grey-dark">Confirm Password</label>
                 <div class="control">
                     <input type="password" v-model="confirm_password" class="input" required />
@@ -132,8 +131,9 @@ const employees = computed(() => store.state.employees)
 const groups = computed(() => store.state.groups)
 
 const form = ref({
+  user_id: props.user?.user_id || null,
   login: props.user?.login || '',
-  password: '',
+  password: props.user?.password || '',
   is_active: props.user?.is_active ?? true,
   group: {
     group_name: props.user?.group?.group_name || 'standard',
@@ -152,7 +152,7 @@ const form = ref({
 
 const formatEmployee = (emp) => `${emp.first_name} ${emp.last_name} <${emp.email}>`
 
-const confirm_password = ref('');
+const confirm_password = ref(props.user ? props.user.password : '');
 
 const selectedEmployee = ref(props.user ? formatEmployee(props.user.employee) : '')
 
@@ -201,8 +201,9 @@ const submitForm = async () => {
 onMounted(() => {
   if (props.user) {
     form.value = {
+      user_id: props.user.user_id,
       login: props.user.login,
-      password: '',
+      password: props.user?.password || '',
       is_active: props.user.is_active,
       group: {
         group_name: props.user.group?.group_name

@@ -256,6 +256,9 @@ const deleteUser = async (user) => {
 }
 
 function showUserForm(user, task) {
+  if (task === 'modify') {
+    user.password = '*****'
+  }
   selectedUser.value = user
   taskValue.value = task
   userFormActive.value = true

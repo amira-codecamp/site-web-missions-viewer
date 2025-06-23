@@ -58,7 +58,8 @@ CREATE TABLE `Groups` (
 );
 
 CREATE TABLE Users (
-    login VARCHAR(50) PRIMARY KEY,
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    login VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(128) NOT NULL,
     date_joined DATE NOT NULL,
     last_login DATETIME NOT NULL,

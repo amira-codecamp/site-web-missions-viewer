@@ -3,7 +3,7 @@ from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
 
-BASE_DIR = Path(__file__).resolve().parent.parent  # Project base dir
+BASE_DIR = Path(__file__).resolve().parent  # Project base dir
 
 # Load .env file
 load_dotenv(os.path.join(BASE_DIR, '.env'))

@@ -59,7 +59,8 @@ class Group_permission(models.Model):
 
 
 class User(AbstractBaseUser):
-    login = models.CharField(max_length=50, primary_key=True)  # User login
+    user_id = models.AutoField(primary_key=True)
+    login = models.CharField(max_length=50, unique=True)  # User login
     password = models.CharField(max_length=128)  # Hashed password
     date_joined = models.DateField()
     last_login = models.DateTimeField()
