@@ -282,6 +282,34 @@ const missions = {
     );
     return response.data;
   },
+
+  async deleteMission(token: any, mission: any): Promise<void> {
+    const response = await axios.delete(
+      `${API_URL}/api/missions/`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        data: mission,
+      }
+    );
+    return response.data;
+  },
+
+  async alterMission(token: any, mission: any): Promise<any> {
+    const response = await axios.put(
+      `${API_URL}/api/missions/`,
+      mission,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data;
+  },
 };
 
 /**

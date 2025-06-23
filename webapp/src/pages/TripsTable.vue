@@ -35,7 +35,12 @@
           <thead>
               <tr>
               <th>Dates</th>
-              <th>Mission</th>
+              <th>
+                <span>Mission </span>
+                <span class="icon is-small" @click="missionWindowClick" style="cursor: pointer;" v-if="isManager">
+                  <i class="fas fa-up-right-from-square"></i>
+                </span>
+              </th>
               <th>Employee</th>
               <th>Departure</th>
               <th>Destination</th>
@@ -124,6 +129,20 @@
       </section>
       </div>
   </div>
+
+  <div class="modal" :class="{ 'is-active': missionWindowActive }">
+      <div class="modal-background" @click="hideMissionWindow"></div>
+      <div class="modal-card" style="width: 90%;">
+      <header class="modal-card-head has-background-white">
+          <p class="modal-card-title has-text-grey-dark">Mission List</p>
+          <button class="delete" aria-label="close" @click="hideMissionWindow"></button>
+      </header>
+      <section class="modal-card-body has-background-light">
+          <MissionWindow
+          @close="hideMissionWindow" />
+      </section>
+      </div>
+  </div>
 </template>
 
 <script setup>
@@ -140,6 +159,7 @@ import { saveAs } from 'file-saver'
 
 import TripAddForm from '@/pages/TripAddForm.vue'
 import TripAlterForm from '@/pages/TripAlterForm.vue'
+import MissionWindow from '@/pages/MissionWindow.vue'
 
 import { fetchToken } from '@/session'
 
@@ -147,6 +167,7 @@ const store = useStore()
 const search = ref('')
 const showAddTripForm = ref(false)
 const showAlterTripForm = ref(false)
+const missionWindowActive = ref(false)
 const selectedTrip = ref(null)
 
 const isManager = computed(() => store.state.isManager)
@@ -237,10 +258,6 @@ const deleteTrip = async (trip) => {
   }
 }
 
-function showMissionsPanel() {
-
-}
-
 function showAlterForm(trip) {
   selectedTrip.value = trip
   showAlterTripForm.value = true
@@ -257,6 +274,14 @@ function showAddForm() {
 
 function hideAddForm() {
   showAddTripForm.value = false
+}
+
+function missionWindowClick() {
+  missionWindowActive.value = true
+}
+
+function hideMissionWindow() {
+  missionWindowActive.value = false
 }
 </script>
 

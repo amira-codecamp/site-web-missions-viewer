@@ -171,6 +171,8 @@ INSERT INTO Groups_permissions (permission, `group`) VALUES
 ('change_trip', 'missionmanager'),
 ('view_mission', 'missionmanager'),
 ('add_mission', 'missionmanager'),
+('delete_mission', 'missionmanager'),
+('change_mission', 'missionmanager'),
 ('view_employee', 'missionmanager'),
 ('view_user', 'admin'),
 ('delete_user', 'admin'),

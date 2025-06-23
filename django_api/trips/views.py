@@ -21,6 +21,8 @@ from trips.permissions import (
     IsModifyTripPermission,
     IsViewMissionPermission,
     IsAddMissionPermission,
+    IsDeleteMissionPermission,
+    IsModifyMissionPermission,
     IsModifyEmployeePermission
 )
 
@@ -179,3 +181,41 @@ class MissionView(APIView):
                 return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Delete an existing mission
+    def delete(self, request):
+        if not IsDeleteMissionPermission().has_permission(request, self):
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+
+        mission_id = request.data.get('mission_id')
+        if not mission_id:
+            return Response({'error': 'mission_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            mission = Mission.objects.get(mission_id=mission_id)
+            mission.delete()
+            return Response({'message': 'Mission deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
+        except Mission.DoesNotExist:
+            return Response({'error': 'Mission not found.'}, status=status.HTTP_404_NOT_FOUND)
+        
+    # PUT: Update a mission
+    def put(self, request):
+        # Permission check
+        if not IsModifyMissionPermission().has_permission(request, self):
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+
+        mission_id = request.data.get('mission_id')
+        if not mission_id:
+            return Response({'error': 'mission_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try: # Get mission row
+            mission = Mission.objects.get(mission_id=mission_id)
+        except Mission.DoesNotExist:
+            return Response({'error': 'Mission not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Pass request.data with partial=True for partial update
+        serializer = MissionSerializer(mission, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()  # <-- calls custom update method internally
+
+        return Response(serializer.data, status=status.HTTP_200_OK)

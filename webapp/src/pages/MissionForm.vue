@@ -71,7 +71,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 import { useStore } from '@/store'
 
@@ -84,27 +84,41 @@ defineOptions({
   name: 'MissionForm',
 })
 
+const emit = defineEmits(['close'])
+
 const store = useStore()
 
 const employees = computed(() => store.state.employees)
 
+const props = defineProps({
+  missionObj: {
+    type: Object,
+    required: true
+  },
+  task: {
+    type: String,
+    required: true
+  }
+})
+
 const form = ref({
-  start_date: '',
-  end_date: '',
+  mission_id: props.missionObj?.mission_id || null,
+  start_date: props.missionObj?.start_date || '',
+  end_date: props.missionObj?.end_date || '',
   employee: {
-    'first_name': '',
-    'last_name': '',
-    'email': '',
+    'first_name': props.missionObj?.employee?.first_name || '',
+    'last_name': props.missionObj?.employee?.last_name || '',
+    'email': props.missionObj?.employee?.email || '',
     'status': {
-        'status_name': '',
+        'status_name': props.missionObj?.employee?.status?.status_name || '',
     }
   },
-  mission_desc: ''
+  mission_desc: props.missionObj?.mission_desc || ''
 })
 
 const formatEmployee = (emp) => `${emp.first_name} ${emp.last_name} <${emp.email}>`
 
-const selectedEmployee = ref('');
+const selectedEmployee = ref(props.missionObj ? formatEmployee(props.missionObj?.employee) : '')
 
 const submitForm = async () => {
     try {
@@ -116,14 +130,19 @@ const submitForm = async () => {
 
         const access = store.state.accessToken
 
-        await services.missions.createMission(access, { ...form.value })
+        if (props.task === 'add') {
+            await services.missions.createMission(access, { ...form.value })
+            alert(`Mission created successfully!`)
+            
+        } else {
+            await services.missions.alterMission(access, { ...form.value })
+            alert(`Mission altered successfully!`)
+        }
 
         const response = await services.missions.fetchMissions(access)
         store.setItem('missions', response.missions)
 
-        alert(`Mission created successfully!`)
-
-        setTimeout(() => {}, 1000)
+        emit('close')
 
     } catch (error) {
         if (error.response?.data) {
@@ -134,4 +153,24 @@ const submitForm = async () => {
         }
     }
 }
+
+onMounted(() => {
+  if (props.missionObj) {
+    form.value = {
+        mission_id: props.missionObj?.mission_id,
+        start_date: props.missionObj?.start_date,
+        end_date: props.missionObj?.end_date,
+        employee: {
+            'first_name': props.missionObj?.employee?.first_name,
+            'last_name': props.missionObj?.employee?.last_name,
+            'email': props.missionObj?.employee?.email,
+            'status': {
+                'status_name': props.missionObj?.employee?.status?.status_name,
+            }
+        },
+        mission_desc: props.missionObj?.mission_desc
+    }
+    selectedEmployee.value = formatEmployee(props.missionObj.employee)
+  }
+})
 </script>

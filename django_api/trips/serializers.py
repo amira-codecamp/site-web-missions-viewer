@@ -65,10 +65,11 @@ class MissionSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Mission
-        fields = ['start_date', 'end_date', 'mission_desc', 'employee']
+        fields = ['mission_id', 'start_date', 'end_date', 'mission_desc', 'employee']
         extra_kwargs = {
             'mission_desc': {'validators': []},
         }
+        read_only_fields = ['mission_id']
 
     def create(self, validated_data):
         # Nested data from the payload
@@ -84,6 +85,20 @@ class MissionSerializer(serializers.ModelSerializer):
         )
 
         return mission
+
+    def update(self, instance, validated_data):
+        # Nested data from the payload
+        employee_data = validated_data.pop('employee')
+
+        # Retrieve Employee instance
+        instance.employee = Employee.objects.get(email=employee_data['email'])
+
+        # Update other fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        return instance
 
 
 # Serializer for the Trip model

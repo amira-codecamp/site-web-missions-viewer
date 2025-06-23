@@ -39,3 +39,13 @@ class IsViewMissionPermission(BasePermission):
 class IsAddMissionPermission(BasePermission):
     def has_permission(self, request, view):
         return request.user.has_perm('add_mission')
+    
+# Check if user can delete missions
+class IsDeleteMissionPermission(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.has_perm('delete_mission')
+    
+# Check if user can modify missions
+class IsModifyMissionPermission(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.has_perm('change_mission')
