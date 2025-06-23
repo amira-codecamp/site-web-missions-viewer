@@ -179,3 +179,15 @@ watch(selectedMission, () => {
   missionFormKey.value++;
 })
 </script>
+
+<style scoped>
+.table-content {
+  overflow-y: scroll;
+  height: 25rem !important;
+}
+
+.table-wrapper, .table-wrapper canvas {
+  width: 100% !important;
+  min-height: unset;
+}
+</style>
