@@ -1,4 +1,4 @@
-# 🌍 Mission Trip Manager
+# 🌍 Mission Trips
 
 A lightweight, full-stack platform to manage missions and employee trips with city autocomplete and carbon tracking.
 
