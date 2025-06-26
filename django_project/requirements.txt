@@ -1,0 +1,11 @@
+django
+django-rest-framework
+djoser
+djangorestframework-simplejwt
+django-cors-headers
+django-environ
+pymysql
+python-dotenv
+lxml
+bleach
+python-dotenv

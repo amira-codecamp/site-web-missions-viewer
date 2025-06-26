@@ -1,3 +1,16 @@
+| Resource     | list         | create | update | destroy |
+| ------------ | ------------ | ------ | ------ | ------- |
+| `users`      | ✅            | ✅      | ✅      | ✅       |
+| `groups`     | ✅            | ❌      | ❌      | ❌       |
+| `status`     | ✅            | ❌      | ❌      | ❌       |
+| `employees`  | ✅            | ❌      | ✅      | ❌       |
+| `transports` | ✅            | ❌      | ❌      | ❌       |
+| `trips`      | ✅            | ✅      | ✅      | ✅       |
+| `missions`   | ✅            | ✅      | ✅      | ✅       |
+
+[X] Integrate GeoNames API
+[X] Manage permissions
+[X] Manage permissions
 
 # 1. Conception de la base de données et jeu d’essai
 Avoir une base cohérente, normalisée, prête à être exploitée par l’application
