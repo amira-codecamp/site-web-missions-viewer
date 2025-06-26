@@ -65,6 +65,6 @@ npm install
 ./start.sh
 ```
 
-## 🔗 Live Access
+## 🔗 GitLab Link
 
 🧭 Project link: [https://depot.lipn.univ-paris13.fr/lacroix/sitewebmission](https://depot.lipn.univ-paris13.fr/lacroix/sitewebmission)
