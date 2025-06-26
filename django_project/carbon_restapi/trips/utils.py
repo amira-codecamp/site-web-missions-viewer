@@ -207,51 +207,27 @@ class TripUtils:
 
         return corrected_distance * factor_value
 
-    # def get_lat_long(self, city: str, country: str) -> Optional[Tuple[float, float]]:
-    #     """
-    #     Get latitude and longitude from GeoNames API for a city-country.
-    #     """
-    #     url = 'http://api.geonames.org/searchJSON'
-    #     params = {
-    #         'q': city,
-    #         'country': country,
-    #         'maxRows': 1,
-    #         'username': self.geonames_username,
-    #         'featureClass': 'P'  # Only populated places
-    #     }
-    #     try:
-    #         resp = requests.get(url, params=params, timeout=5)
-    #         resp.raise_for_status()
-    #         data = resp.json()
-    #         if data.get('totalResultsCount', 0) > 0:
-    #             geoname = data['geonames'][0]
-    #             return float(geoname['lat']), float(geoname['lng'])
-    #     except requests.RequestException:
-    #         pass
-    #     return None
-
     def get_lat_long(self, city: str, country: str) -> Optional[Tuple[float, float]]:
         """
-        Get latitude and longitude from Photon API for a city-country.
+        Get latitude and longitude from GeoNames API for a city-country.
         """
-        query = f"{city}, {country}"
-        url = f"https://photon.komoot.io/api/?q={query}&limit=1"
-        headers = {
-            "User-Agent": "YourAppName/1.0 (your.email@example.com)"
+        url = 'http://api.geonames.org/searchJSON'
+        params = {
+            'q': city,
+            'country': country,
+            'maxRows': 1,
+            'username': self.geonames_username,
+            'featureClass': 'P'  # Only populated places
         }
-
         try:
-            resp = requests.get(url, headers=headers, timeout=5)
+            resp = requests.get(url, params=params, timeout=5)
             resp.raise_for_status()
             data = resp.json()
-            features = data.get("features", [])
-            if features:
-                coords = features[0]["geometry"]["coordinates"]
-                return coords[1], coords[0]  # (lat, lon)
-        except requests.RequestException as e:
-            print(f"[Photon] Erreur de requête : {e}")
-        except Exception as e:
-            print(f"[Photon] Erreur inattendue : {e}")
+            if data.get('totalResultsCount', 0) > 0:
+                geoname = data['geonames'][0]
+                return float(geoname['lat']), float(geoname['lng'])
+        except requests.RequestException:
+            pass
         return None
 
     def get_mission_year(self, trip) -> Optional[str]:
