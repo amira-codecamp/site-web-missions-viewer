@@ -24,15 +24,15 @@ A lightweight, full-stack platform to manage missions and employee trips with ci
 
 ## 🔐 API Resources
 
-| Resource     | List | Create | Update | Delete |
-|--------------|:----:|:------:|:------:|:------:|
-| `users`      | ✅   | ✅     | ✅     | ✅     |
-| `groups`     | ✅   | ❌     | ❌     | ❌     |
-| `status`     | ✅   | ❌     | ❌     | ❌     |
-| `employees`  | ✅   | ❌     | ✅     | ❌     |
-| `transports` | ✅   | ❌     | ❌     | ❌     |
-| `trips`      | ✅   | ✅     | ✅     | ✅     |
-| `missions`   | ✅   | ✅     | ✅     | ✅     |
+| Resource     | List | Create | Update | Delete | Retrieve
+|--------------|:----:|:------:|:------:|:------:|:------:|
+| `users`      | ✅   | ✅     | ✅     | ✅     | ✅     |
+| `groups`     | ✅   | ❌     | ❌     | ❌     | ❌     |
+| `status`     | ✅   | ❌     | ❌     | ❌     | ❌     |
+| `employees`  | ✅   | ❌     | ✅     | ❌     | ❌     |
+| `transports` | ✅   | ❌     | ❌     | ❌     | ❌     |
+| `trips`      | ✅   | ✅     | ✅     | ✅     | ❌     |
+| `missions`   | ✅   | ✅     | ✅     | ✅     | ❌     |
 
 ---
 
@@ -63,6 +63,7 @@ python manage.py runserver
 cd vue_project
 npm install
 ./start.sh
+```
 
 ## 🔗 Live Access
 
