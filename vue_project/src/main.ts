@@ -1,10 +1,10 @@
 // main.ts
 import { createApp } from 'vue'
-import BaseLayout from '@/components/BaseLayout.vue'
+import Layout from '@/components/Layout.vue'
 import router from '@/router'
 import { useStore } from '@/store'
 
-const app = createApp(BaseLayout)
+const app = createApp(Layout)
 
 const store = useStore()
 

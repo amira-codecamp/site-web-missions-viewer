@@ -80,7 +80,10 @@ async function submitForm() {
     store.setItem('accessToken', access)
     store.setItem('refreshToken', refresh)
 
-    router.push('/member')
+    const account = await services.users.me(access)
+    store.setItem('account', account);
+
+    router.push('/dashboard')
   } catch (error: any) {
     if (error.response && error.response.data) {
       for (const property in error.response.data) {

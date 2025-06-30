@@ -1,12 +1,9 @@
 import { reactive, computed } from 'vue'
 
 interface State {
-  loggedUser: any
-  isActive: boolean
+  account: any
   accessToken: string
   refreshToken: string
-  isManager: boolean
-  isAdmin: boolean
   trips: any[]
   missions: any[]
   transports: any[]
@@ -42,12 +39,9 @@ function storageRemove(key: string): void {
 
 // --- Reactive State ---
 const state = reactive<State>({
-  loggedUser: storageGet<any>('loggedUser', {}),
-  isActive: storageGet<boolean>('isActive', false),
+  account: storageGet<any>('account', {}),
   accessToken: storageGet<string>('accessToken', ''),
   refreshToken: storageGet<string>('refreshToken', ''),
-  isManager: storageGet<boolean>('isManager', false),
-  isAdmin: storageGet<boolean>('isAdmin', false),
   trips: storageGet<any[]>('trips', []),
   missions: storageGet<any[]>('missions', []),
   transports: storageGet<any[]>('transports', []),
@@ -70,12 +64,9 @@ function setItem<K extends keyof State>(key: K, value: State[K]) {
 // --- Reset a specific state item to its default ---
 function clearItem<K extends keyof State>(key: K) {
   const defaultValues: Partial<State> = {
-    loggedUser: {},
-    isActive: false,
+    account: {},
     accessToken: '',
     refreshToken: '',
-    isManager: false,
-    isAdmin: false,
     trips: [],
     missions: [],
     transports: [],
@@ -90,7 +81,7 @@ function clearItem<K extends keyof State>(key: K) {
 }
 
 // --- Authentication Status ---
-const isAuthenticated = computed(() => !!state.loggedUser && !!state.accessToken)
+const isAuthenticated = computed(() => !!state.account.user_id)
 
 export function useStore() {
   return {

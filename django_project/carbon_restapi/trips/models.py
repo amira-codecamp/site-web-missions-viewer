@@ -1,5 +1,5 @@
 from django.db import models
-from carbon_restapi.trips.utils import TripUtils
+from carbon_restapi.trips.utils import TripEmissions
 
 # -----------------------------------
 # Status model for employee state (e.g., Researcher, Intern)
@@ -122,7 +122,7 @@ class Trip(models.Model):
         return f"Trip {self.trip_id}: {self.departure_city} → {self.destination_city}"
 
     def save(self, *args, **kwargs):
-        carbon = TripUtils().compute_footprint(self)
+        carbon = TripEmissions().compute_footprint(self)
         if carbon is not None:
             self.carbon_footprint = round(carbon, 2)
         super().save(*args, **kwargs)

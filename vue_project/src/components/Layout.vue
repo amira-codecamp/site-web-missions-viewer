@@ -1,16 +1,14 @@
 <template>
   <div class="page">
-    <div class="page-header">
-      <Header />
-    </div>
 
     <div class="page-body">
       <router-view />
     </div>
 
-    <div class="page-footer">
+    <!-- <div class="page-footer">
       <Footer />
-    </div>
+    </div> -->
+
   </div>
 </template>
 
@@ -23,7 +21,6 @@ import 'bulma-multiselect/css/bulma-multiselect.min.css'
 import 'bulma-tooltip/dist/css/bulma-tooltip.min.css'
 import 'leaflet/dist/leaflet.css'
 
-import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 </script>
 

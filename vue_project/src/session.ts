@@ -15,9 +15,7 @@ export function logout() {
   store.clearItem('users')
   store.clearItem('groups')
   store.clearItem('status')
-  store.clearItem('isManager')
-  store.clearItem('isAdmin')
-  store.clearItem('loggedUser')
+  store.clearItem('account')
   store.clearItem('accessToken')
   store.clearItem('refreshToken')
 
