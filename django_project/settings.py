@@ -31,10 +31,10 @@ INSTALLED_APPS = [
     'django.contrib.messages', 'django.contrib.staticfiles',
 
     # Third-party apps
-    'rest_framework', 'rest_framework_simplejwt', 'djoser', 'corsheaders',
+    'rest_framework', 'rest_framework_simplejwt', 'djoser', 'corsheaders', 'drf_yasg',
 
     # Custom apps
-    'carbon_restapi', 'carbon_restapi.users', 'carbon_restapi.trips'
+    'carbon_restapi', 'carbon_restapi.users', 'carbon_restapi.trips',
 ]
 
 CORS_ALLOWED_ORIGINS = ['http://localhost:8080']  # CORS allowed origins
@@ -43,6 +43,7 @@ CORS_ALLOWED_ORIGINS = ['http://localhost:8080']  # CORS allowed origins
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': ['rest_framework_simplejwt.authentication.JWTAuthentication'],
     'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.IsAuthenticated'],
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }
 
 # JWT settings
@@ -50,6 +51,19 @@ SIMPLE_JWT = {
     'USER_ID_FIELD': 'login',  # User ID field for JWT
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
     'REFRESH_TOKEN_LIFETIME': timedelta(minutes=720),
+}
+
+# SWAGGER Settings
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    },
+    'USE_SESSION_AUTH': False,
+    'DEFAULT_AUTO_SCHEMA_CLASS': 'swagger.CustomAutoSchema',
 }
 
 # Middleware

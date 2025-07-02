@@ -1,5 +1,5 @@
 <template>
-  <div class="columns">
+  <div class="columns mt-6">
     <div class="column is-6 is-offset-3">
       <form @submit.prevent="submitForm">
         <div class="field mb-4">
@@ -49,7 +49,8 @@ defineOptions({
 })
 
 import { ref, onMounted } from 'vue'
-import services from '@/services'
+import services from '@/composables/services'
+import { getPermission } from '@/composables/session'
 import { useStore } from '@/store'
 import { useRouter } from 'vue-router'
 
@@ -75,12 +76,27 @@ async function submitForm() {
   try {
     const credentials = { login: login.value, password: password.value }
 
-    const { access, refresh } = await services.auth.login(credentials)
+    const { access, refresh } = await services.token.create(credentials)
 
     store.setItem('accessToken', access)
     store.setItem('refreshToken', refresh)
 
-    router.push('/member')
+    const user = await services.users.me(access)
+    store.setItem('loggedUser', user);
+
+    const { isAdmin, isManager, isStandard } = getPermission()
+
+    let data = []
+    if (isAdmin.value) {
+      data = await services.employees.list(access)
+    } else {
+      data = await services.trips.list(access)
+    }
+
+    store.setItem('loadedData', data);
+
+    router.push('/dashboard')
+    
   } catch (error: any) {
     if (error.response && error.response.data) {
       for (const property in error.response.data) {

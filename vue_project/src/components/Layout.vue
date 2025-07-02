@@ -1,8 +1,5 @@
 <template>
   <div class="page">
-    <div class="page-header">
-      <Header />
-    </div>
 
     <div class="page-body">
       <router-view />
@@ -11,6 +8,7 @@
     <div class="page-footer">
       <Footer />
     </div>
+
   </div>
 </template>
 
@@ -23,7 +21,6 @@ import 'bulma-multiselect/css/bulma-multiselect.min.css'
 import 'bulma-tooltip/dist/css/bulma-tooltip.min.css'
 import 'leaflet/dist/leaflet.css'
 
-import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 </script>
 
@@ -43,11 +40,6 @@ import Footer from '@/components/Footer'
   min-height: unset;
 }
 
-.page-header {
-  flex-shrink: 0;
-  height: 3rem;
-}
-
 .page-body {
   flex-grow: 1;
   overflow: auto;
@@ -56,7 +48,7 @@ import Footer from '@/components/Footer'
 
 .page-footer {
   flex-shrink: 0;
-  padding: 1rem;
+  padding: 5rem;
   height: 10rem;
 }
 </style>

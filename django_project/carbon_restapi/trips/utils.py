@@ -21,7 +21,7 @@ MODE_FERRY = 'FERRY'
 
 
 @dataclass
-class EmissionFactors:
+class TransportFactors:
     """
     Load emission factors from JSON files for vehicles and transports.
     """
@@ -29,7 +29,7 @@ class EmissionFactors:
     transports_factors: Dict[str, Any] = field(default_factory=dict)
 
     @classmethod
-    def load_from_dir(cls) -> 'EmissionFactors':
+    def load_from_dir(cls) -> 'TransportFactors':
         try:
             current_dir = os.path.dirname(os.path.abspath(__file__))
             factors_dir = os.path.join(current_dir, 'factors')
@@ -42,12 +42,12 @@ class EmissionFactors:
             raise RuntimeError(f"Error loading emission factors: {e}")
 
 
-class TripUtils:
+class TripEmissions:
     """
     Utility to compute carbon footprint of a trip instance.
     """
 
-    # Transport-specific correction factors
+    # Transport corrections
     TRANSPORT_CORRECTIONS: Dict[str, Callable[[float], float]] = {
         MODE_PLANE: lambda d: d + 95,
         MODE_CAR: lambda d: 1.2 * d,
@@ -61,17 +61,17 @@ class TripUtils:
     }
 
     def __init__(self):
-        self._emission_factors: Optional[EmissionFactors] = None
+        self._emission_factors: Optional[TransportFactors] = None
         self.factors_dir = None
         self.geonames_username = os.getenv('GEONAMES_USERNAME')
 
     @property
-    def emission_factors(self) -> EmissionFactors:
+    def emission_factors(self) -> TransportFactors:
         """
         Lazily load emission factors once.
         """
         if self._emission_factors is None:
-            self._emission_factors = EmissionFactors.load_from_dir()
+            self._emission_factors = TransportFactors.load_from_dir()
         return self._emission_factors
 
     @staticmethod
@@ -124,7 +124,7 @@ class TripUtils:
             return 'MX'
         return 'IN'
 
-    def get_mode(self, transport: str, distance: float, scope: Optional[str]) -> Tuple[Optional[str], Optional[str]]:
+    def transport_mode(self, transport: str, distance: float, scope: Optional[str]) -> Tuple[Optional[str], Optional[str]]:
         """
         Determine emission factor category and subcategory based on transport and distance.
         """
@@ -195,7 +195,7 @@ class TripUtils:
         distance = self.geodesic_distance(dep_lat, dep_lon, dest_lat, dest_lon)
         corrected_distance = self.correct_distance(transport, distance, carpooling, is_round_trip)
         scope = self.travel_scope(dep_country, dest_country)
-        mode = self.get_mode(transport, corrected_distance, scope)
+        mode = self.transport_mode(transport, corrected_distance, scope)
         factor = self.get_factor(transport, mode, year)
 
         if factor is None:
@@ -230,15 +230,6 @@ class TripUtils:
             pass
         return None
 
-    def get_mission_year(self, trip) -> Optional[str]:
-        """
-        Extract mission start year from trip object.
-        """
-        start_date = getattr(getattr(trip, 'mission', None), 'start_date', None)
-        if start_date:
-            return str(start_date.year)
-        return None
-
     def compute_footprint(self, trip) -> Optional[float]:
         """
         Compute carbon footprint for a Trip instance.
@@ -246,8 +237,6 @@ class TripUtils:
         dep_coords = self.get_lat_long(trip.departure_city, trip.departure_country)
 
         dest_coords = self.get_lat_long(trip.destination_city, trip.destination_country)
-
-        year = self.get_mission_year(trip)
 
         carbon = self.carbon_footprint(
             transport=trip.transport.transport_name,
@@ -259,7 +248,7 @@ class TripUtils:
             dest_lon=dest_coords[1],
             carpooling=trip.carpooling,
             is_round_trip=trip.is_round_trip,
-            year=year
+            year=str(getattr(getattr(trip, 'mission'), 'start_date').year)
         )
 
         return carbon

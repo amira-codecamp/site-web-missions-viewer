@@ -1,8 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import LogInForm from '@/pages/LogInForm.vue'
-import TripsPage from '@/pages/TripsPage.vue'
-import MemberPage from '@/pages/MemberPage.vue'
-import AdminPage from '@/pages/AdminPage.vue'
+import LogIn from '@/components/LogIn.vue'
+import Dashboard from '@/components/Dashboard.vue'
 import { useStore } from '@/store'
 
 const routes: RouteRecordRaw[] = [
@@ -11,27 +9,15 @@ const routes: RouteRecordRaw[] = [
     redirect: '/login',
   },
   {
-    path: '/login',
-    name: 'login',
-    component: LogInForm,
+    path: '/dashboard',
+    name: '/dashboard',
+    component: Dashboard,
+    meta: { requiresAuth: true },
   },
   {
-    path: '/member',
-    name: 'member',
-    component: MemberPage,
-    meta: { requiresAuth: true },
-    children: [
-      {
-        path: 'trips',
-        name: 'trips',
-        component: TripsPage,
-      },
-      {
-        path: 'admin',
-        name: 'admin',
-        component: AdminPage,
-      },
-    ],
+    path: '/login',
+    name: 'login',
+    component: LogIn,
   },
 ]
 

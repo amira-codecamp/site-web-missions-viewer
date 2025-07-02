@@ -2,18 +2,9 @@ import { reactive, computed } from 'vue'
 
 interface State {
   loggedUser: any
-  isActive: boolean
   accessToken: string
   refreshToken: string
-  isManager: boolean
-  isAdmin: boolean
-  trips: any[]
-  missions: any[]
-  transports: any[]
-  employees: any[]
-  status: any[]
-  users: any[]
-  groups: any[]
+  loadedData: any[]
 }
 
 // --- Local Storage Utilities ---
@@ -43,18 +34,9 @@ function storageRemove(key: string): void {
 // --- Reactive State ---
 const state = reactive<State>({
   loggedUser: storageGet<any>('loggedUser', {}),
-  isActive: storageGet<boolean>('isActive', false),
   accessToken: storageGet<string>('accessToken', ''),
   refreshToken: storageGet<string>('refreshToken', ''),
-  isManager: storageGet<boolean>('isManager', false),
-  isAdmin: storageGet<boolean>('isAdmin', false),
-  trips: storageGet<any[]>('trips', []),
-  missions: storageGet<any[]>('missions', []),
-  transports: storageGet<any[]>('transports', []),
-  employees: storageGet<any[]>('employees', []),
-  status: storageGet<any[]>('status', []),
-  users: storageGet<any[]>('users', []),
-  groups: storageGet<any[]>('groups', [])
+  loadedData: storageGet<any[]>('loadedData', []),
 })
 
 // --- Set a value in state and localStorage ---
@@ -71,18 +53,9 @@ function setItem<K extends keyof State>(key: K, value: State[K]) {
 function clearItem<K extends keyof State>(key: K) {
   const defaultValues: Partial<State> = {
     loggedUser: {},
-    isActive: false,
     accessToken: '',
     refreshToken: '',
-    isManager: false,
-    isAdmin: false,
-    trips: [],
-    missions: [],
-    transports: [],
-    employees: [],
-    status: [],
-    users: [],
-    groups: []
+    loadedData: [],
   }
 
   const defaultValue = defaultValues[key] as State[K]
@@ -90,7 +63,7 @@ function clearItem<K extends keyof State>(key: K) {
 }
 
 // --- Authentication Status ---
-const isAuthenticated = computed(() => !!state.loggedUser && !!state.accessToken)
+const isAuthenticated = computed(() => !!state.loggedUser.user_id)
 
 export function useStore() {
   return {
