@@ -40,11 +40,6 @@ import Footer from '@/components/Footer'
   min-height: unset;
 }
 
-.page-header {
-  flex-shrink: 0;
-  height: 3rem;
-}
-
 .page-body {
   flex-grow: 1;
   overflow: auto;
@@ -53,7 +48,7 @@ import Footer from '@/components/Footer'
 
 .page-footer {
   flex-shrink: 0;
-  padding: 1rem;
+  padding: 5rem;
   height: 10rem;
 }
 </style>

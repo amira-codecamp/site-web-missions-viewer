@@ -79,7 +79,7 @@ class Transport(models.Model):
 # -----------------------------------
 class Mission(models.Model):
     mission_id = models.AutoField(primary_key=True)
-    start_date = models.DateField()
+    start_date = models.DateField(db_index=True)
     end_date = models.DateField()
     mission_desc = models.CharField(max_length=255, unique=True)
     employee = models.ForeignKey(Employee, on_delete=models.PROTECT, db_column='employee', related_name='missions')

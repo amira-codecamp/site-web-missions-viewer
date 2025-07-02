@@ -1,16 +1,10 @@
 import { reactive, computed } from 'vue'
 
 interface State {
-  account: any
+  loggedUser: any
   accessToken: string
   refreshToken: string
-  trips: any[]
-  missions: any[]
-  transports: any[]
-  employees: any[]
-  status: any[]
-  users: any[]
-  groups: any[]
+  loadedData: any[]
 }
 
 // --- Local Storage Utilities ---
@@ -39,16 +33,10 @@ function storageRemove(key: string): void {
 
 // --- Reactive State ---
 const state = reactive<State>({
-  account: storageGet<any>('account', {}),
+  loggedUser: storageGet<any>('loggedUser', {}),
   accessToken: storageGet<string>('accessToken', ''),
   refreshToken: storageGet<string>('refreshToken', ''),
-  trips: storageGet<any[]>('trips', []),
-  missions: storageGet<any[]>('missions', []),
-  transports: storageGet<any[]>('transports', []),
-  employees: storageGet<any[]>('employees', []),
-  status: storageGet<any[]>('status', []),
-  users: storageGet<any[]>('users', []),
-  groups: storageGet<any[]>('groups', [])
+  loadedData: storageGet<any[]>('loadedData', []),
 })
 
 // --- Set a value in state and localStorage ---
@@ -64,16 +52,10 @@ function setItem<K extends keyof State>(key: K, value: State[K]) {
 // --- Reset a specific state item to its default ---
 function clearItem<K extends keyof State>(key: K) {
   const defaultValues: Partial<State> = {
-    account: {},
+    loggedUser: {},
     accessToken: '',
     refreshToken: '',
-    trips: [],
-    missions: [],
-    transports: [],
-    employees: [],
-    status: [],
-    users: [],
-    groups: []
+    loadedData: [],
   }
 
   const defaultValue = defaultValues[key] as State[K]
@@ -81,7 +63,7 @@ function clearItem<K extends keyof State>(key: K) {
 }
 
 // --- Authentication Status ---
-const isAuthenticated = computed(() => !!state.account.user_id)
+const isAuthenticated = computed(() => !!state.loggedUser.user_id)
 
 export function useStore() {
   return {

@@ -32,6 +32,7 @@
     "vue-class-component": "^8.0.0-0",
     "vue-double-slider": "^0.2.1",
     "vue-echarts": "^7.0.3",
+    "vue-form-wizard": "^0.8.4",
     "vue-navigation-bar": "^6.1.0",
     "vue-router": "^4.0.3",
     "vue-sidebar-menu": "^5.7.0",
@@ -39,6 +40,7 @@
     "vue-stepper": "^1.4.2",
     "vue3-autocomplete": "^1.0.4",
     "vue3-datepicker": "^0.4.0",
+    "vue3-form-wizard": "^0.2.4",
     "vue3-slider": "^1.10.1",
     "vuex": "^4.0.0",
     "xlsx": "^0.18.5"

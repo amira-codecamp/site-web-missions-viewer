@@ -1,7 +1,7 @@
 -- phpMyAdmin SQL Dump
 -- version 5.2.2
 -- https://www.phpmyadmin.net/
---
+
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -51,7 +51,8 @@ INSERT INTO `django_migrations` (`id`, `app`, `name`, `applied`) VALUES
 (4, 'users', '0001_initial', '2025-06-26 10:11:40.608823'),
 (5, 'trips', '0001_initial', '2025-06-26 10:11:06.398956'),
 (6, 'users', '0001_initial', '2025-06-26 10:11:40.608823'),
-(7, 'trips', '0002_alter_trip_departure_country_and_more', '2025-06-26 13:41:36.313217');
+(7, 'trips', '0002_alter_trip_departure_country_and_more', '2025-06-26 13:41:36.313217'),
+(8, 'trips', '0003_alter_mission_start_date', '2025-07-02 18:00:04.800329');
 
 -- --------------------------------------------------------
 
@@ -1076,7 +1077,6 @@ INSERT INTO `Trips` (`trip_id`, `departure_city`, `departure_country`, `destinat
 (1072, 'lyon', 'FR', 'nantes', 'FR', 1, 2, 433.02, 228, 'CAB'),
 (1074, 'turin', 'IT', 'manchester', 'GB', 1, 1, 26.58, 115, 'RER'),
 (1075, 'edinburgh', 'GB', 'düsseldorf', 'DE', 1, 1, 66.88, 217, 'BUS'),
-(1081, 'sheffield', 'GB', 'london', 'GB', 0, 1, 1.55, 114, 'SUBWAY'),
 (1082, 'london', 'GB', 'bremen', 'DE', 0, 1, 187.92, 280, 'PLANE'),
 (1085, 'leiden', 'NL', 'cardiff', 'GB', 1, 1, 235.22, 156, 'PLANE'),
 (1087, 'maastricht', 'NL', 'marseille', 'FR', 1, 1, 8.32, 211, 'TRAM'),
@@ -1090,7 +1090,6 @@ INSERT INTO `Trips` (`trip_id`, `departure_city`, `departure_country`, `destinat
 (1108, 'málaga', 'ES', 'lille', 'FR', 1, 1, 37.41, 183, 'RER'),
 (1111, 'leipzig', 'DE', 'sheffield', 'GB', 0, 1, 10.89, 157, 'RER'),
 (1115, 'seville', 'ES', 'manchester', 'GB', 1, 1, 201.16, 176, 'TRAIN'),
-(1116, 'glasgow', 'GB', 'cardiff', 'GB', 1, 1, 6.69, 102, 'SUBWAY'),
 (1117, 'bordeaux', 'FR', 'groningen', 'NL', 1, 1, 14.50, 225, 'SUBWAY'),
 (1118, 'leeds', 'GB', 'edinburgh', 'GB', 1, 2, 220.11, 217, 'CAB'),
 (1119, 'lille', 'FR', 'venice', 'IT', 0, 5, 46.49, 136, 'CAR'),
@@ -1114,7 +1113,6 @@ INSERT INTO `Trips` (`trip_id`, `departure_city`, `departure_country`, `destinat
 (1148, 'brussels', 'BE', 'nice', 'FR', 0, 1, 32.79, 139, 'BUS'),
 (1149, 'genoa', 'IT', 'paris', 'FR', 0, 2, 297.07, 177, 'CAB'),
 (1152, 'cardiff', 'GB', 'utrecht', 'NL', 0, 1, 3.91, 186, 'SUBWAY'),
-(1153, 'strasbourg', 'FR', 'berlin', 'DE', 0, 1, 2.93, 143, 'TRAM'),
 (1154, 'nantes', 'FR', 'almere', 'NL', 1, 1, 16.93, 261, 'RER'),
 (1158, 'brussels', 'BE', 'montpellier', 'FR', 1, 1, 7.97, 170, 'TRAM'),
 (1160, 'bordeaux', 'FR', 'nice', 'FR', 1, 1, 50.71, 210, 'BUS'),
@@ -1808,11 +1806,11 @@ INSERT INTO `Trips` (`trip_id`, `departure_city`, `departure_country`, `destinat
 (2581, 'bordeaux', 'FR', 'liverpool', 'GB', 0, 1, 6.58, 262, 'SUBWAY'),
 (2585, 'paris', 'FR', 'namur', 'BE', 1, 1, 5.77, 219, 'RER'),
 (2586, 'nantes', 'FR', 'leeds', 'GB', 1, 1, 9.95, 135, 'SUBWAY'),
-(2587, 'venice', 'IT', 'liverpool', 'GB', 0, 4, 495.44, 281, 'CAB');
-INSERT INTO `Trips` (`trip_id`, `departure_city`, `departure_country`, `destination_city`, `destination_country`, `is_round_trip`, `carpooling`, `carbon_footprint`, `mission`, `transport`) VALUES
+(2587, 'venice', 'IT', 'liverpool', 'GB', 0, 4, 495.44, 281, 'CAB'),
 (2593, 'toulouse', 'FR', 'maastricht', 'NL', 0, 1, 4.29, 216, 'TRAM'),
 (2594, 'glasgow', 'GB', 'leuven', 'BE', 1, 1, 339.72, 108, 'PLANE'),
-(2595, 'nantes', 'FR', 'alicante', 'ES', 0, 1, 4.90, 168, 'TRAM'),
+(2595, 'nantes', 'FR', 'alicante', 'ES', 0, 1, 4.90, 168, 'TRAM');
+INSERT INTO `Trips` (`trip_id`, `departure_city`, `departure_country`, `destination_city`, `destination_country`, `is_round_trip`, `carpooling`, `carbon_footprint`, `mission`, `transport`) VALUES
 (2597, 'edinburgh', 'GB', 'manchester', 'GB', 0, 1, 11.20, 162, 'BUS'),
 (2599, 'cologne', 'DE', 'bristol', 'GB', 0, 1, 653.88, 293, 'FERRY'),
 (2601, 'strasbourg', 'FR', 'genoa', 'IT', 1, 1, 22.71, 144, 'TRAIN'),
@@ -2217,7 +2215,8 @@ ALTER TABLE `Groups`
 ALTER TABLE `Missions`
   ADD PRIMARY KEY (`mission_id`),
   ADD UNIQUE KEY `mission_desc` (`mission_desc`),
-  ADD KEY `Missions_employee_34dbb5de_fk_Employees_employee_id` (`employee`);
+  ADD KEY `Missions_employee_34dbb5de_fk_Employees_employee_id` (`employee`),
+  ADD KEY `Missions_start_date_dfed03ba` (`start_date`);
 
 --
 -- Index pour la table `Permissions`
@@ -2262,7 +2261,7 @@ ALTER TABLE `Users`
 -- AUTO_INCREMENT pour la table `django_migrations`
 --
 ALTER TABLE `django_migrations`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT pour la table `Employees`
@@ -2280,7 +2279,7 @@ ALTER TABLE `GroupPermissions`
 -- AUTO_INCREMENT pour la table `Missions`
 --
 ALTER TABLE `Missions`
-  MODIFY `mission_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=302;
+  MODIFY `mission_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=304;
 
 --
 -- AUTO_INCREMENT pour la table `Trips`

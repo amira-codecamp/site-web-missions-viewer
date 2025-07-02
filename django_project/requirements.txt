@@ -9,3 +9,8 @@ python-dotenv
 lxml
 bleach
 python-dotenv
+django-filter
+drf-yasg
+pytest
+pytest-django
+factory-boy

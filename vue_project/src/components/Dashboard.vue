@@ -5,107 +5,49 @@
     </div>
 
     <div class="main-content column is-11">
-      <Manager v-if="activePage === 'Trips' && !isAdmin" />
-      <Admin v-if="activePage === 'Users' && isAdmin" />
-      <Account v-if="activePage === 'Account'" />
-      <!-- <router-view v-if="!activePage || activePage === 'Dashboard'" /> -->
+      <Mission v-if="isManager || isStandard" />
+      <Admin v-if="isAdmin" />
+      <Account />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { useStore } from '@/store'
-
-const store = useStore()
+import { ref, onMounted } from 'vue'
 
 import { SidebarMenu } from 'vue-sidebar-menu'
 import 'vue-sidebar-menu/dist/vue-sidebar-menu.css'
 
-import { logout } from '@/session'
-import services from '@/services'
+import { logout, getPermission } from '@/composables/session'
 
-import Manager from '@/components/Manager.vue'
+import Mission from '@/components/Mission.vue'
 import Admin from '@/components/Admin.vue' 
 import Account from '@/components/Account.vue'
 
-import { fetchToken } from '@/session'
+const { isAdmin, isManager, isStandard } = getPermission()
 
-
-const isAdmin = ref(false);
 
 const sidebarMenu = ref([]);
 
-const activePage = ref('Dashboard')
-
 function onItemClick(event, item) {
   if (item.title === 'Logout') {
-    localStorage.removeItem('activePage');
     logout()
-  } else {
-    activePage.value = item.title
-    localStorage.setItem('activePage', activePage.value)
   }
-}
-
-async function storeState() {
-  await fetchToken();
-  const accessToken = store.state.accessToken;
-
-  const transports = await services.transports.list(accessToken)
-  const status = await services.status.list(accessToken)
-  const groups = await services.groups.list(accessToken)
-  store.setItem('transports', transports.transports);
-  store.setItem('status', status.status);
-  store.setItem('groups', groups.groups);
-
-  const account = store.state.account;
-
-  if (account.group?.group_name === 'ADMIN') {
-    const employees = await services.employees.list(accessToken)
-    store.setItem('employees', employees.employees);
-    const users = await services.users.list(accessToken)
-    store.setItem('users', users.users);
-  
-  } else {
-    const trips = await services.trips.list(accessToken)
-    store.setItem('trips', trips.trips);
-  }
-
-  if (account.group?.group_name === 'MISSIONMANAGER') {
-    const missions = await services.missions.list(accessToken)
-    store.setItem('missions', missions.missions);
-    const employees = await services.employees.list(accessToken)
-    store.setItem('employees', employees.employees);
-  }
-
 }
 
 onMounted(async () => {
-  const savedPage = localStorage.getItem('activePage');
-  activePage.value = savedPage
   document.title = 'Dashboard'
-  if (!savedPage) {
-    await storeState()
-  }
-  const account = store.state.account;
-  const groupName = account.group?.group_name;
-  if (groupName) {
-    isAdmin.value = groupName === 'ADMIN';
-  } else {
-    console.error("Group name is undefined");
-  }
   sidebarMenu.value = [
     {
       header: 'HOME',
       hiddenOnCollapse: true,
     },
     ...(isAdmin.value ? [{
-      title: 'Users',
+      title: 'Admin',
       icon: 'fa fa-users',
     }] : []),
-    ...(!isAdmin.value ? [{
-      title: 'Trips',
+    ...(isManager.value || isStandard.value ? [{
+      title: 'Mission',
       icon: 'fa fa-route',
     }] : []),
     {
