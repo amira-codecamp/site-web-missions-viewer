@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 from carbon_restapi.trips.models import Employee
+from django.utils.crypto import get_random_string
 
 
 # -----------------------------------
@@ -88,6 +89,10 @@ class UserManager(BaseUserManager):
     def create_superuser(self, login, password=None, **extra_fields):
         extra_fields.setdefault('is_active', True)
         return self.create_user(login, password, **extra_fields)
+
+    def make_random_password(self, length=10,
+                            allowed_chars='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'):
+        return get_random_string(length, allowed_chars)
 
 
 # -----------------------------------

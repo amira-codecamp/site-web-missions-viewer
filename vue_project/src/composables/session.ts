@@ -1,5 +1,3 @@
-// session.ts
-
 import { computed } from 'vue'
 import { useStore } from '@/store'
 import services from '@/composables/services'
@@ -29,16 +27,16 @@ export async function fetchToken(): Promise<string> {
   const store = useStore()
 
   try {
-    const access: string = store.state.accessToken
+    const access = store.state.accessToken
     await services.token.verify(access)
 
   } catch (error: any) {
     try {
-      const refresh: string = store.state.refreshToken
+      const refresh = store.state.refreshToken
       await services.token.verify(refresh)
 
       const responsetok = await services.token.refresh(refresh)
-      const access: string = responsetok.access
+      const access = responsetok.access
       store.setItem('accessToken', access)
     }
     catch (error: any) {
@@ -61,9 +59,9 @@ export function getData() {
 /**
  * Updates the Data in the store.
  */
-export function setData(newData: any[]) {
+export function setData(newData: Record<string, any>) {
   const store = useStore()
-  store.state.loadedData = newData
+  store.setItem('loadedData', newData)
 }
 
 /* ===================
@@ -73,9 +71,18 @@ export function setData(newData: any[]) {
 export function getPermission() {
   const store = useStore()
 
-  const isAdmin = computed<boolean>(() => store.state.loggedUser.group === 'ADMIN')
-  const isManager = computed<boolean>(() => store.state.loggedUser.group === 'MISSIONMANAGER')
-  const isStandard = computed<boolean>(() => store.state.loggedUser.group === 'STANDARD')
+  const isAdmin = computed(() => store.state.loggedUser.group === 'ADMIN')
+  const isManager = computed(() => store.state.loggedUser.group === 'MISSIONMANAGER')
+  const isStandard = computed(() => store.state.loggedUser.group === 'STANDARD')
 
   return { isAdmin, isManager, isStandard }
+}
+
+/* ===================
+ * Logged User Info
+ * =================== */
+
+export function getUser() {
+  const store = useStore()
+  return store.state.loggedUser
 }

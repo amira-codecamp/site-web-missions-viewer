@@ -1,10 +1,15 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
 
 from carbon_restapi.users.models import User, Group
-from carbon_restapi.users.serializers import UserSerializer, GroupSerializer
+from carbon_restapi.users.serializers import (
+    UserSerializer, GroupSerializer,
+    PasswordResetSerializer, ConfirmPasswordSerializer
+)
+
 from carbon_restapi.users.permissions import (
     IsViewUserPermission, IsDeleteUserPermission,
     IsAddUserPermission, IsModifyUserPermission
@@ -49,3 +54,33 @@ class GroupViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = GroupSerializer
     permission_classes = [IsAuthenticated]
     swagger_tags = ['groups']
+
+
+class PasswordResetViewSet(viewsets.GenericViewSet):
+    permission_classes = [AllowAny]
+    serializer_class = PasswordResetSerializer
+    swagger_tags = ['users']
+
+    def create(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {"detail": "If the email exists, a password reset link has been sent."},
+            status=status.HTTP_200_OK
+        )
+    
+
+class ConfirmPasswordViewSet(viewsets.GenericViewSet):
+    permission_classes = [AllowAny]
+    serializer_class = ConfirmPasswordSerializer
+    swagger_tags = ['users']
+
+    def create(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {"detail": "Password has been reset successfully."},
+            status=status.HTTP_200_OK
+        )

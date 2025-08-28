@@ -1,10 +1,13 @@
-from django.urls import path, include
+from django.urls import path, include, re_path
 from rest_framework.routers import DefaultRouter
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
-from carbon_restapi.users.views import UserViewSet, GroupViewSet
+from carbon_restapi.users.views import (
+    UserViewSet, GroupViewSet, PasswordResetViewSet, ConfirmPasswordViewSet
+)
+
 from carbon_restapi.trips.views import (
     StatusViewSet,
     EmployeeViewSet,
@@ -18,6 +21,10 @@ router = DefaultRouter()
 # Users endpoints
 router.register(r'users', UserViewSet, basename='user')
 router.register(r'groups', GroupViewSet, basename='group')
+
+# Reset password endpoints
+router.register(r'resetPassword', PasswordResetViewSet, basename='resetPassword')
+router.register(r'confirmPassword', ConfirmPasswordViewSet, basename='confirmPassword')
 
 # Trips endpoints
 router.register(r'status', StatusViewSet, basename='status')
@@ -44,7 +51,7 @@ urlpatterns = [
     path('token/', include('djoser.urls.jwt')),       # JWT endpoints
 
     # Swagger/OpenAPI docs
-    path('swagger(<format>\.json|\.yaml)', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]

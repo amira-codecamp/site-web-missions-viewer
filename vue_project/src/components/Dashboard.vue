@@ -7,24 +7,23 @@
     <div class="main-content column is-11">
       <Mission v-if="isManager || isStandard" />
       <Admin v-if="isAdmin" />
-      <Account />
+      <!-- <Account /> -->
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
-
 import { SidebarMenu } from 'vue-sidebar-menu'
 import 'vue-sidebar-menu/dist/vue-sidebar-menu.css'
 
-import { logout, getPermission } from '@/composables/session'
+import { logout, getPermission, fetchToken, getData, setData } from '@/composables/session'
+const { isAdmin, isManager, isStandard } = getPermission()
+import services from '@/composables/services'
 
 import Mission from '@/components/Mission.vue'
 import Admin from '@/components/Admin.vue' 
-import Account from '@/components/Account.vue'
-
-const { isAdmin, isManager, isStandard } = getPermission()
+// import Account from '@/components/Account.vue'
 
 
 const sidebarMenu = ref([]);
@@ -50,15 +49,35 @@ onMounted(async () => {
       title: 'Mission',
       icon: 'fa fa-route',
     }] : []),
-    {
-      title: 'Account',
-      icon: 'fa fa-user-cog',
-    },
+    // {
+    //   title: 'Account',
+    //   icon: 'fa fa-user-cog',
+    // },
     {
       title: 'Logout',
       icon: 'fa fa-sign-out-alt',
     },
   ];
+  if (Object.keys(getData()).length === 0) {
+    const token = await fetchToken()
+    const data = {}
+    if (isAdmin.value) {
+      data.employees = await services.employees.list(token)
+      data.groups = await services.groups.list(token)
+      data.users = await services.users.list(token)
+      data.status = await services.status.list(token)
+    } else if (isStandard.value) {
+      data.trips = await services.trips.list(token)
+      data.missions = await services.missions.list(token)
+    } else if (isManager.value) {
+      data.transports = await services.transports.list(token)
+      data.trips = await services.trips.list(token)
+      data.employees = await services.employees.list(token)
+      data.missions = await services.missions.list(token)
+      data.status = await services.status.list(token)
+    }
+    setData(data)
+  }
 })
 </script>
 

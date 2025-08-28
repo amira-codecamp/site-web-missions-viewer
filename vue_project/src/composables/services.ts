@@ -29,6 +29,8 @@ const users = {
   update: async (token: string, id: number, data: any) => axios.put(`${API_URL}/carbon/users/${id}/`, data, authHeader(token)).then(res => res.data),
   partialUpdate: async (token: string, id: number, data: any) => axios.patch(`${API_URL}/carbon/users/${id}/`, data, authHeader(token)).then(res => res.data),
   destroy: async (token: string, id: number) => axios.delete(`${API_URL}/carbon/users/${id}/`, authHeader(token)).then(res => res.data),
+  reset: async (email: string) => axios.post(`${API_URL}/carbon/resetPassword/`, { email }, { headers: { 'Content-Type': 'application/json' } }).then(res => res.data),
+  confirmReset: async (token: string, password: string) => axios.post(`${API_URL}/carbon/confirmPassword/`, { token, password }, { headers: { 'Content-Type': 'application/json' }}).then(res => res.data),
 };
 
 /** Groups */
@@ -43,8 +45,24 @@ const status = {
 
 /** Employees */
 const employees = {
-  list: async (token: string) => axios.get(`${API_URL}/carbon/employees/`, authHeader(token)).then(res => res.data),
+  list: async (
+    token: string,
+    status?: string,
+    research_team?: string
+  ) => {
+    const params = new URLSearchParams();
+    if (status) {
+      params.append('status', status);
+    }
+    if (research_team) {
+      params.append('research_team', research_team);
+    }
+    const url = `${API_URL}/carbon/employees/?${params.toString()}`;
+    return axios.get(url, authHeader(token)).then(res => res.data);
+  },
+  me: async (token: string) => axios.get(`${API_URL}/carbon/employees/me/`, authHeader(token)).then(res => res.data),
   retrieve: async (token: string, id: number) => axios.get(`${API_URL}/carbon/employees/${id}/`, authHeader(token)).then(res => res.data),
+  create: async (token: string, data: any) => axios.post(`${API_URL}/carbon/employees/`, data, authHeader(token)).then(res => res.data),
   update: async (token: string, id: number, data: any) => axios.put(`${API_URL}/carbon/employees/${id}/`, data, authHeader(token)).then(res => res.data),
   partialUpdate: async (token: string, id: number, data: any) => axios.patch(`${API_URL}/carbon/employees/${id}/`, data, authHeader(token)).then(res => res.data),
 };
@@ -85,7 +103,22 @@ const trips = {
 
 /** Missions */
 const missions = {
-  list: async (token: string) => (await axios.get(`${API_URL}/carbon/missions/`, authHeader(token))).data,
+  list: async (
+    token: string,
+    years?: (number | string)[],
+    employee_ids?: (number | string)[]
+  ) => {
+    const params = new URLSearchParams();
+    if (years && years.length > 0) {
+      years.forEach(y => params.append('year', y.toString()));
+    }
+    if (employee_ids && employee_ids.length > 0) {
+      employee_ids.forEach(id => params.append('employee_id', id.toString()));
+    }
+    const url = `${API_URL}/carbon/missions/?${params.toString()}`;
+    const res = await axios.get(url, authHeader(token));
+    return res.data;
+  },
   retrieve: async (token: string, id: number) => axios.get(`${API_URL}/carbon/missions/${id}/`, authHeader(token)).then(res => res.data),
   create: async (token: string, data: any) => axios.post(`${API_URL}/carbon/missions/`, data, authHeader(token)).then(res => res.data),
   update: async (token: string, id: number, data: any) => axios.put(`${API_URL}/carbon/missions/${id}/`, data, authHeader(token)).then(res => res.data),
@@ -96,7 +129,7 @@ const missions = {
 /** Cities - GeoNames external API */
 const cities = {
   fetch: async (name: string) => {
-    const url = `http://api.geonames.org/searchJSON?q=${encodeURIComponent(name)}&username=${GEONAMES_USERNAME}`;
+    const url = `http://api.geonames.org/searchJSON?q=${encodeURIComponent(name)}&username=${GEONAMES_USERNAME}&featureClass=P`;
     const { data } = await axios.get(url);
     if (!data.geonames?.length) throw new Error("No cities found");
     return data.geonames;

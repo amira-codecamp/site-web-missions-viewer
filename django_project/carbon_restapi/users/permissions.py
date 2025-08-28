@@ -11,13 +11,13 @@ class HasAppPermission(BasePermission):
         return request.user.has_perm(perm)
 
 class IsViewUserPermission(HasAppPermission):
-    perm_codename = 'view_user'
+    perm_codename = 'VIEW_USER'
 
 class IsAddUserPermission(HasAppPermission):
-    perm_codename = 'add_user'
+    perm_codename = 'ADD_USER'
 
 class IsDeleteUserPermission(HasAppPermission):
-    perm_codename = 'delete_user'
+    perm_codename = 'DELETE_USER'
 
 class IsModifyUserPermission(HasAppPermission):
-    perm_codename = 'change_user'
+    perm_codename = 'CHANGE_USER'

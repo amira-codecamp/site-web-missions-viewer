@@ -32,6 +32,8 @@ class Employee(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     email = models.EmailField(max_length=255, unique=True)
+    employee_adm_num = models.CharField(max_length=50, unique=True)
+    research_team = models.CharField(max_length=255, db_index=True)
     status = models.ForeignKey(Status, on_delete=models.PROTECT, db_column='status', related_name='employees')
 
     def __str__(self):
@@ -81,7 +83,8 @@ class Mission(models.Model):
     mission_id = models.AutoField(primary_key=True)
     start_date = models.DateField(db_index=True)
     end_date = models.DateField()
-    mission_desc = models.CharField(max_length=255, unique=True)
+    mission_adm_num = models.CharField(max_length=50, unique=True)
+    mission_desc = models.CharField(max_length=255, blank=True)
     employee = models.ForeignKey(Employee, on_delete=models.PROTECT, db_column='employee', related_name='missions')
 
     def __str__(self):

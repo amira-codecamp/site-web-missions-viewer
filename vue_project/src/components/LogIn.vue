@@ -29,6 +29,12 @@
           </div>
         </div>
 
+        <p class="is-size-7 has-text-right mb-4">
+          <button class="button is-text is-small has-text-link" @click="openResetPrompt">
+            Forgot password?
+          </button>
+        </p>
+
         <div class="notification is-danger mb-4" v-if="errors.length">
           <p v-for="error in errors" :key="error">{{ error }}</p>
         </div>
@@ -44,13 +50,9 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({
-  name: 'LogInForm',
-})
 
 import { ref, onMounted } from 'vue'
 import services from '@/composables/services'
-import { getPermission } from '@/composables/session'
 import { useStore } from '@/store'
 import { useRouter } from 'vue-router'
 
@@ -82,18 +84,8 @@ async function submitForm() {
     store.setItem('refreshToken', refresh)
 
     const user = await services.users.me(access)
+    user.employee = await services.employees.me(access)
     store.setItem('loggedUser', user);
-
-    const { isAdmin, isManager, isStandard } = getPermission()
-
-    let data = []
-    if (isAdmin.value) {
-      data = await services.employees.list(access)
-    } else {
-      data = await services.trips.list(access)
-    }
-
-    store.setItem('loadedData', data);
 
     router.push('/dashboard')
     
@@ -106,6 +98,25 @@ async function submitForm() {
       errors.value.push('Something went wrong. Please try again')
     }
     console.error(error)
+  }
+}
+
+async function openResetPrompt() {
+  const email = window.prompt("Enter your email to receive a password reset link:")
+  if (!email) return
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    alert("Please enter a valid email address.");
+    return;
+  }
+
+  try {
+    alert("If email exists, password reset link was sent.")
+    await services.users.reset(email)
+  } catch (error) {
+    console.error(error)
+    alert("Failed to send reset email. Try again later.")
   }
 }
 </script>

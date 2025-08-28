@@ -20,6 +20,7 @@ defineOptions({
 import 'bulma-multiselect/css/bulma-multiselect.min.css'
 import 'bulma-tooltip/dist/css/bulma-tooltip.min.css'
 import 'leaflet/dist/leaflet.css'
+import 'vue-datepicker-next/index.css'
 
 import Footer from '@/components/Footer'
 </script>

@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import LogIn from '@/components/LogIn.vue'
 import Dashboard from '@/components/Dashboard.vue'
+import ResetPassword from '@/components/ResetPassword.vue'
 import { useStore } from '@/store'
 
 const routes: RouteRecordRaw[] = [
@@ -18,6 +19,12 @@ const routes: RouteRecordRaw[] = [
     path: '/login',
     name: 'login',
     component: LogIn,
+  },
+  {
+    path: '/reset',
+    name: 'ResetPassword',
+    component: ResetPassword,
+    props: route => ({ token: route.query.token })
   },
 ]
 

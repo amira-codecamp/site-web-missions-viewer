@@ -11,31 +11,34 @@ class HasAppPermission(BasePermission):
         return request.user.has_perm(perm)
 
 class IsViewEmployeePermission(HasAppPermission):
-    perm_codename = 'view_employee'
+    perm_codename = 'VIEW_EMPLOYEE'
+
+class IsAddEmployeePermission(HasAppPermission):
+    perm_codename = 'ADD_EMPLOYEE'
 
 class IsModifyEmployeePermission(HasAppPermission):
-    perm_codename = 'change_employee'
+    perm_codename = 'CHANGE_EMPLOYEE'
 
 class IsViewTripPermission(HasAppPermission):
-    perm_codename = 'view_trip'
+    perm_codename = 'VIEW_TRIP'
 
 class IsAddTripPermission(HasAppPermission):
-    perm_codename = 'add_trip'
+    perm_codename = 'ADD_TRIP'
 
 class IsDeleteTripPermission(HasAppPermission):
-    perm_codename = 'delete_trip'
+    perm_codename = 'DELETE_TRIP'
 
 class IsModifyTripPermission(HasAppPermission):
-    perm_codename = 'change_trip'
+    perm_codename = 'CHANGE_TRIP'
 
 class IsViewMissionPermission(HasAppPermission):
-    perm_codename = 'view_mission'
+    perm_codename = 'VIEW_MISSION'
 
 class IsAddMissionPermission(HasAppPermission):
-    perm_codename = 'add_mission'
+    perm_codename = 'ADD_MISSION'
 
 class IsDeleteMissionPermission(HasAppPermission):
-    perm_codename = 'delete_mission'
+    perm_codename = 'DELETE_MISSION'
 
 class IsModifyMissionPermission(HasAppPermission):
-    perm_codename = 'change_mission'
+    perm_codename = 'CHANGE_MISSION'

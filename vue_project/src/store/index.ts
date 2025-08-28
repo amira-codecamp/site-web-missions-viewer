@@ -4,7 +4,7 @@ interface State {
   loggedUser: any
   accessToken: string
   refreshToken: string
-  loadedData: any[]
+  loadedData: Record<string, any>
 }
 
 // --- Local Storage Utilities ---
@@ -36,7 +36,7 @@ const state = reactive<State>({
   loggedUser: storageGet<any>('loggedUser', {}),
   accessToken: storageGet<string>('accessToken', ''),
   refreshToken: storageGet<string>('refreshToken', ''),
-  loadedData: storageGet<any[]>('loadedData', []),
+  loadedData: storageGet<Record<string, any>>('loadedData', {}),
 })
 
 // --- Set a value in state and localStorage ---
@@ -55,7 +55,7 @@ function clearItem<K extends keyof State>(key: K) {
     loggedUser: {},
     accessToken: '',
     refreshToken: '',
-    loadedData: [],
+    loadedData: {},
   }
 
   const defaultValue = defaultValues[key] as State[K]

@@ -6,33 +6,52 @@ A lightweight, full-stack platform to manage missions and employee trips with ci
 
 ## 🚀 Features
 
-- ✅ Role-based access (Admin, Manager, Employee)  
-- ✅ Create/edit trips with city autocomplete (GeoNames)  
-- ✅ Live map preview (Leaflet & OpenStreetMap)  
-- ✅ Carbon footprint estimation  
-- ✅ Model-based mission creation
+- Role-based access (Admin, Manager, Employee)  
+- Create/edit trips with city autocomplete (GeoNames)  
+- Live map preview (Leaflet & OpenStreetMap)  
+- Carbon footprint estimation  
+- Model-based mission creation
 
 ---
 
 ## 🔧 Tech Stack
 
 **Frontend:** Vue 3, Pinia, Bulma, Leaflet  
-**Backend:** Django, Django REST Framework, MySQL, JWT  
+**Backend:** Django, Django REST Framework, MySQL, JWT, Swagger  
 **Third-party:** GeoNames API, OpenStreetMap
 
 ---
 
 ## 🔐 API Resources
 
-| Resource     | List | Create | Update | Delete | Retrieve
-|--------------|:----:|:------:|:------:|:------:|:------:|
-| `users`      | ✅   | ✅     | ✅     | ✅     | ✅     |
-| `groups`     | ✅   | ❌     | ❌     | ❌     | ❌     |
-| `status`     | ✅   | ❌     | ❌     | ❌     | ❌     |
-| `employees`  | ✅   | ❌     | ✅     | ❌     | ❌     |
-| `transports` | ✅   | ❌     | ❌     | ❌     | ❌     |
-| `trips`      | ✅   | ✅     | ✅     | ✅     | ❌     |
-| `missions`   | ✅   | ✅     | ✅     | ✅     | ❌     |
+| Resource       | Action           | ADMIN | MISSIONMANAGER | STANDARD |
+|----------------|------------------|:-----:|:--------------:|:--------:|
+| **users**      | List/View        | ✅    | ❌             | ❌        |
+|                | Create           | ✅    | ❌             | ❌        |
+|                | Update           | ✅    | ❌             | ❌        |
+|                | Partial Update   | ✅    | ❌             | ❌        |
+|                | Delete           | ✅    | ❌             | ❌        |
+|                | Retrieve         | ✅    | ❌             | ❌        |
+| **groups**     | List/View        | ✅    | ✅             | ✅        |
+| **status**     | List/View        | ✅    | ✅             | ✅        |
+| **employees**  | List/View        | ✅    | ✅             | ❌        |
+|                | Create           | ✅    | ✅             | ❌        |
+|                | Update           | ✅    | ✅             | ❌        |
+|                | Partial Update   | ✅    | ✅             | ❌        |
+|                | Retrieve         | ✅    | ✅             | ❌        |
+| **transports** | List/View        | ✅    | ✅             | ✅        |
+| **trips**      | List/View        | ❌    | ✅             | ✅        |
+|                | Create           | ❌    | ✅             | ❌        |
+|                | Update           | ❌    | ✅             | ❌        |
+|                | Partial Update   | ❌    | ✅             | ❌        |
+|                | Delete           | ❌    | ✅             | ❌        |
+|                | Retrieve         | ❌    | ✅             | ✅        |
+| **missions**   | List/View        | ❌    | ✅             | ✅        |
+|                | Create           | ❌    | ✅             | ❌        |
+|                | Update           | ❌    | ✅             | ❌        |
+|                | Partial Update   | ❌    | ✅             | ❌        |
+|                | Delete           | ❌    | ✅             | ❌        |
+|                | Retrieve         | ❌    | ✅             | ✅        |
 
 ---
 
@@ -45,7 +64,8 @@ A lightweight, full-stack platform to manage missions and employee trips with ci
 - ✅ Carbon footprint visualization
 - ✅ Role-based permissions  
 - ⬜ Import/export trips 
-- ⬜ Anonymized user statistics   
+- ⬜ Anonymized user statistics  
+- ✅ Swagger API Documentation 
 
 ---
 
