@@ -1,20 +1,20 @@
-# 🌍 Mission Trips
+# Description
 
-A lightweight, full-stack platform to manage missions and employee trips with city autocomplete and carbon tracking.
+A lightweight, full-stack platform to visualize carbon footprint of missions for researchers.
 
 ---
 
-## 🚀 Features
+## Features
 
-- Role-based access (Admin, Manager, Employee)  
-- Create/edit trips with city autocomplete (GeoNames)  
+- Role-based access (Admin, Manager, Researcher)  
+- Create/edit missions with cities autocompletion using GeoNames
 - Live map preview (Leaflet & OpenStreetMap)  
-- Carbon footprint estimation  
-- Model-based mission creation
+- Carbon footprint estimation and visualization
+- Import & export missions using GESLab / GES1p5 formats
 
 ---
 
-## 🔧 Tech Stack
+## Tech Stack
 
 **Frontend:** Vue 3, Pinia, Bulma, Leaflet  
 **Backend:** Django, Django REST Framework, MySQL, JWT, Swagger  
@@ -22,7 +22,7 @@ A lightweight, full-stack platform to manage missions and employee trips with ci
 
 ---
 
-## 🔐 API Resources
+## API Resources
 
 | Resource       | Action           | ADMIN | MISSIONMANAGER | STANDARD |
 |----------------|------------------|:-----:|:--------------:|:--------:|
@@ -55,21 +55,7 @@ A lightweight, full-stack platform to manage missions and employee trips with ci
 
 ---
 
-## 📈 Roadmap
-
-- ✅ Mission/trip models 
-- ✅ GeoNames API integration  
-- ✅ Map routing with Leaflet
-- ✅ Carbon footprint calculation  
-- ✅ Carbon footprint visualization
-- ✅ Role-based permissions  
-- ⬜ Import/export trips 
-- ⬜ Anonymized user statistics  
-- ✅ Swagger API Documentation 
-
----
-
-## 🧪 Setup Instructions
+## Install
 
 ```bash
 # Backend
@@ -82,9 +68,16 @@ python manage.py runserver
 # Frontend
 cd vue_project
 npm install
-./start.sh
+npm run serve
 ```
 
-## 🔗 GitLab Link
+## Set up environment variables
+To make sure the frontend can communicate with the backend, you need to configure two environment variables. These variables are required for the backend URL and GeoNames API credentials.
 
-🧭 Project link: [https://depot.lipn.univ-paris13.fr/lacroix/sitewebmission](https://depot.lipn.univ-paris13.fr/lacroix/sitewebmission)
+```bash
+export VUE_APP_GEONAMES_USERNAME="your_geonames_username"
+export VUE_APP_SERVER_URL="http://127.0.0.1:8000/"
+```
+
+- Replace `BACKEND_URL` with the actual URL where your Django backend is running.
+- Example: If your Django backend is running locally on the default port, it will be `http://127.0.0.1:8000/`.
