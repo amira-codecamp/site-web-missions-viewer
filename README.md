@@ -1,6 +1,6 @@
 # 🌍 Carbon Footprint App
 
-> A lightweight full-stack platform to visualize and analyze the carbon footprint of research missions for laboratories.
+> A full-stack platform to visualize and analyze the carbon footprint of research missions for laboratories.
 > 
 ---
 
