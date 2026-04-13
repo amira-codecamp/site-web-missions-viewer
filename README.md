@@ -64,8 +64,8 @@ You need to configure the required environment variables: backend URL (used by t
 
 ```bash
 export VUE_APP_GEONAMES_USERNAME="your_geonames_username"
-export VUE_APP_SERVER_URL="http://127.0.0.1:8000/"
+export VUE_APP_SERVER_URL="your_backend_url"
 ```
 
-- Replace `BACKEND_URL` with the actual URL where your Django backend is running.
+- Replace `your_backend_url` with the actual URL where your Django backend is running.
 - If your Django backend is running locally on the default port, it will be `http://127.0.0.1:8000/`.
